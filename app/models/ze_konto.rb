@@ -1,17 +1,42 @@
 # encoding: UTF-8
 class ZEKonto < ActiveRecord::Base
-
   set_table_name "ZEKonto"
+  set_primary_key :ktoNr
 
+  # attributes
   attr_accessible :ktoNr, :eeKtoNr, :pgNr, :zeNr, :zeAbDatum, :zeEndDatum, :zeBetrag, 
                   :laufzeit, :zahlModus, :tilgRate, :ansparRate, :kduRate, :rduRate, :zeStatus
   
-  set_primary_key :ktoNr
-  
-  belongs_to :OZBKonto
-  belongs_to :EEKonto
-  has_many :Buergschaft, :foreign_key => :ktoNr # Done, getestet
+  # associations
+  belongs_to :OZBKonto, :foreign_key => :ktoNr
+  belongs_to :EEKonto, :foreign_key => :eeKtoNr
+  has_many :Buergschaft, :foreign_key => :ktoNr # no one or many; Done, getestet
   belongs_to :Projektgruppe, :inverse_of => :ZEKonto, :foreign_key => :pgNr # Done, getestet
+  
+  # validations
+  # ...
+  
+  # column names
+  HUMANIZED_ATTRIBUTES = {
+    :ktoNr => 'Konto-Nr.',
+    :eeKtoNr => 'EE Konto-Nr.',
+    :pgNr => 'pgNr',
+    :zeNr => 'zeNr',
+	:zeAbDatum => 'Gültig ab',
+	:zeEndDatum => 'Gültig bis',
+	:zeBetrag => 'zeBetrag',
+	:laufzeit => 'Laufzeit',
+	:zahlModus => 'zahlModus',
+	:tilgRate => 'Tilgungsrate',
+	:ansparRate => 'Ansparrate',
+	:kduRate => 'kduRate',
+	:rduRate => 'rduRate',
+	:zeStatus => 'zeStatus'
+  }
+
+  def self.human_attribute_name(attr, options={})
+    HUMANIZED_ATTRIBUTES[attr.to_sym] || super
+  end
   
   def validate!
     errors = ActiveModel::Errors.new(self)

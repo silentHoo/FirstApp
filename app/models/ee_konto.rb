@@ -1,47 +1,45 @@
 # encoding: UTF-8
 class EEKonto < ActiveRecord::Base
-
-  set_table_name "EEKonto"   
-
+  set_table_name "EEKonto"
+  set_primary_key :ktoNr
+  
+  # attributes
   attr_accessible :ktoNr, :bankId, :kreditlimit
 
-  set_primary_key :ktoNr
-
-  belongs_to :OZBKonto
-  belongs_to :Bankverbindung
+  # associations
+  belongs_to :OZBKonto, :foreign_key => :ktoNr
+  belongs_to :Bankverbindung, :foreign_key => :id
   has_one :ZEKonto, :foreign_key => :ktoNr # Done, getestet
+  
+  # validations
+  validates_associated :Bankverbindung
+  validates :ktoNr, :presence => { :format => { :with => /[0-9]+/ }, :message => "Bitte geben Sie eine gültige Kontonummer an." }
+  validates :ktoNr, :uniqueness => { :message => "Diese Kontonummer exisitert bereits für ein EE-Konto." }
+  validates :kreditlimit, :presence => { :format => { :with => /[0-9]+/ }, :message => "Bitte geben Sie ein gültiges Kreditlimit ein." }
+  validates :GueltigVon, :presence => { :format => { :with => /\d{4}-\d{2}-\d{2}/ }, :message => "Bitte geben Sie ein gültiges Startdatum ein." }
+  validates :GueltigBis, :presence => { :format => { :with => /\d{4}-\d{2}-\d{2}/ }, :message => "Bitte geben Sie ein gültiges Enddatum ein." }
+  validate :valid_date_range
+  
+  # column names
+  HUMANIZED_ATTRIBUTES = {
+    :ktoNr => 'Konto-Nr.',
+    :bankId => 'Bank-ID',
+    :kreditlimit => 'Kreditlimit',
+	:GueltigVon => 'Gültig von',
+	:GueltigBis => 'Gültig bis'
+  }
 
-  def validate!
-    errors = ActiveModel::Errors.new(self)
-    
-    # Kontonummer
-    if self.ktoNr.nil? then
-      errors.add("", "Bitte geben sie eine Kontonummer an.")
-    else
-      if !self.ktoNr.to_s.match(/[0-9]+/) then
-        errors.add("", "Die Kontonummer muss eine Zahl sein.")
-      end
-    end
-    
-    # Bankverbindung
-    if self.bankId.nil? then
-      errors.add("", "Bitte geben sie eine Bankverbindung an.")
-    end
-    
-    # Kreditlimit
-    if self.kreditlimit.nil? then
-      errors.add("", "Bitte geben sie ein gültiges Kreditlimit (>0) an.")
-    else
-      if !self.kreditlimit.to_s.match(/[0-9]+/) then
-        errors.add("", "Bitte geben sie einen gültigen Zahlenwert > 0 an.")
-      else
-        if self.kreditlimit < 0 then
-          errors.add("", "Bitte geben Sie einen positiven Zahlenwert für das Kreditlimit an.")
-        end
-      end
-    end
-
-    return errors
+  def self.human_attribute_name(attr, options={})
+    HUMANIZED_ATTRIBUTES[attr.to_sym] || super
   end
-
+  
+  def valid_date_range
+	if GueltigVon < GueltigBis then
+	  errors.add(:GueltigBis, "Das Enddatum muss nach dem Startdatum liegen.")
+	end
+	
+	if self.find(:ktoNr => ktoNr, :conditions => { :GueltigVon_gte => GueltigVon, :GueltigBis_lte => GueltigBis }).size > 0 then
+	  errors.add(:GueltigVon, "Der angegebene Datumsbereich überlappt sich mit bereits vorhandenen Daten.")
+	end
+  end
 end

@@ -1,13 +1,33 @@
 # encoding: UTF-8
 class Buergschaft < ActiveRecord::Base 
-  set_table_name "Buergschaft"   
-   
-  attr_accessible  :pnrB, :mnrG, :ktoNr, :sichAbDatum, :sichEndDatum, :sichBetrag, :sichKurzBez
+  set_table_name "Buergschaft"
   set_primary_keys :pnrB, :mnrG
-   
-  belongs_to :person
-  belongs_to :OZBPerson
-  belongs_to :ZEKonto
+  
+  # attributes
+  attr_accessible :pnrB, :mnrG, :ktoNr, :sichAbDatum, :sichEndDatum, :sichBetrag, :sichKurzBez
+
+  # associations
+  belongs_to :person, :foreign_key => :pnrB
+  belongs_to :OZBPerson, :foreign_key => :mnrG
+  belongs_to :ZEKonto, :foreign_key => :ktoNr
+  
+  # validations
+  # ...
+  
+  # column names
+  HUMANIZED_ATTRIBUTES = {
+    :pnrB => 'Personen-Nr. / Bürgschafter',
+    :mnrG => 'Mitglieds-Nr. / Gläubiger',
+    :ktoNr => 'Konto-Nr.',
+    :sichAbDatum => 'Beginn',
+	:sichEndDatum => 'Ende',
+	:sichBetrag => 'Betrag',
+	:sichKurzBez => 'Bezeichnung'
+  }
+
+  def self.human_attribute_name(attr, options={})
+    HUMANIZED_ATTRIBUTES[attr.to_sym] || super
+  end
   
   def validate(bName, gName)!    
     errors = ActiveModel::Errors.new(self)
