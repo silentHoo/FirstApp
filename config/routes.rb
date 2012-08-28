@@ -14,6 +14,7 @@ OZB::Application.routes.draw do
   match '/OZBPerson/:mnr/OZBKonto/:kontotyp/:ktoNr/edit' => 'ozb_konto#edit', :via => :GET
   match '/OZBPerson/:mnr/OZBKonto/:kontotyp/:ktoNr/edit' => 'ozb_konto#update', :via => :PUT
   match '/OZBPerson/:mnr/OZBKonto/:kontotyp/:ktoNr/delete' => 'ozb_konto#delete'
+  match '/OZBPerson/:mnr/OZBKonto/:kontotyp/:ktoNr/verlauf' => 'ozb_konto#verlauf'
   
   match '/OZBPerson/new' => 'ozb_person#new'
   match '/OZBPerson/new' => 'ozb_person#searchOZBPerson'

@@ -166,7 +166,14 @@ class OzbKontoController < ApplicationController
   
   # Zeigt den KKLVerlauf an
   def verlauf
-    @ozb_konto = OZBKonto.where( :ktoNr => params[:ktoNr] ).first
-    @verlauf = @ozb_konto.KKLVerlauf
+    # view variables: OZBPerson, Person -> DRY!
+    @ozb_person = OzbPerson.find(params[:mnr])
+    @person = @ozb_person.Person
+    
+    @ozb_konto = OzbKonto.latest(params[:ktoNr])
+    
+    @verlauf = KklVerlauf.find(:all, :conditions => { :ktoNr => params[:ktoNr] }, :order => "kklAbDatum ASC")
+    
+    render "verlauf"
   end
 end
