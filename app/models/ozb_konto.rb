@@ -10,7 +10,7 @@ class OzbKonto < ActiveRecord::Base
   # this differs from the db model -> there are in 'real' many ZeKonto for this record, but we have a historic database where at a point of time only one record is valid!
   has_one :kkl_verlauf, 
     :foreign_key => :ktoNr,
-    :primary_key => :id,
+    :primary_key => :ktoNr,
     :dependent => :destroy, 
     :class_name => "KklVerlauf", 
     :order => "kklAbDatum DESC" # order is important to match the latest record!
@@ -80,11 +80,7 @@ class OzbKonto < ActiveRecord::Base
   
   # bound to callback
   def set_assoc_attributes
-    #self.ee_konto.each do |ee|
-    #  ee.SachPNR = self.SachPNR
-    #end
     self.ee_konto.SachPNR = self.SachPNR
-    #self.ee_konto.ktoNr = self.ktoNr # this is necessary? check pls! Shouldn't that be set automatically via has_one association?
   end
   
   # bound to callback

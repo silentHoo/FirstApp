@@ -119,16 +119,15 @@ class OzbKontoController < ApplicationController
   end
   
   def delete
-    if current_OZBPerson.canEditB then
-      begin
-        @konto = OZBKonto.where( :ktoNr => params[:ktoNr] ).first
-        @konto.destroy
-        redirect_to :action => "index"
-      rescue
-      end
-    else 
-      redirect_to "/"
+    @ozb_konto = OzbKonto.latest(params[:ktoNr])
+    
+    if (@ozb_konto.destroy)
+      flash[:notice] = "Konto wurde erfolgreich gelöscht."
+    else
+      flash[:error] = "Fehler beim Löschen des Kontos."
     end
+    
+    redirect_to :action => "index"
   end
 
   def searchKtoNr
