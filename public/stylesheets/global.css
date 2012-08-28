@@ -40,8 +40,6 @@ div.field, div.actions {
 
 table {
   margin: 20px auto;
-  border: 1px solid;
-  background: #D8E7FC;
   border-collapse:collapse;
   width: 100%;
   font-size: 14px;
@@ -50,14 +48,6 @@ table {
 td {
   padding: 5px;
   font-size: 12px;
-}
-
-
-input {
-  padding: 5px;
-  border-radius: 5px;
-  font-size: 12px;
-  width: 80%;
 }
 
 .field_with_errors {
@@ -71,11 +61,9 @@ input {
 
 .content {
   text-align:center; 
-  width: 800px; 
   margin: 20px auto;
   padding: 20px 50px;
   background-color: #ffffff;
-  border-radius: 10px;
 }
 
 .actions {
@@ -322,4 +310,84 @@ input {
 #error_explanation ul li {
   font-size: 12px;
   list-style: square;
+}
+
+/* Patrick */
+h1 {
+  text-align: left;
+  font-size: 20px;
+  color: #14335A;
+}
+
+h3 {
+  text-align: left;
+  margin-top: 50px;
+  font-size: 16px;
+  font-style: italic;
+}
+
+.content ul {
+  text-align: left;
+}
+
+table.record_listing tr  th {
+  padding: 3px;
+  background-color: #D8E7FC;
+}
+
+table.record_listing tr td,
+table.record_listing tr th {
+  text-align: left;
+}
+
+table.record_listing tr td.table_option_column {
+  width: 80px;
+  text-align: center;
+}
+
+table.record_listing tr td.record_listing_empty {
+  text-align:center;
+  font-size: 14px;
+  color: #D90816;
+  padding: 20px;
+}
+
+fieldset {
+  border: 1px #BDBDBD solid;
+  background-color: #FDFDFD;
+}
+
+fieldset legend {
+  font-size: 16px;
+  font-weight: bold;
+  color: #C00000;
+}
+
+table.record_form tr td {
+  text-align: left;
+  width: 25%;
+}
+
+table.record_form input[type=text] {
+  width: 160px;
+  border: 1px grey solid;
+  padding: 2px;
+  margin: 2px;
+}
+
+table.record_form input[type=text]:focus {
+  border: 2px #C00000 solid;
+  margin: 1px;
+}
+
+table.record_form select {
+  width: 165px;
+  border: 1px grey solid;
+  padding: 2px;
+  margin: 2px;
+}
+
+table.record_form select:focus {
+  border: 2px #C00000 solid;
+  margin: 1px;
 }

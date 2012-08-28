@@ -1,292 +1,118 @@
 class OzbKontoController < ApplicationController
-
-  before_filter :authenticate_OZBPerson!
-
+  # done
   def index
-    if current_OZBPerson.canEditB then
-      get_konten()
-    else
-      redirect_to "/"
-    end
+    @ee_konten = OzbKonto.get_all_ee_for(params[:mnr])
+    @ze_konten = OzbKonto.get_all_ze_for(params[:mnr])
     
+    render "index"
   end
   
-  
-  def get_konten
-    @ozb_konten = OZBKonto.where( :mnr => params[:id] )
-    @ee_konten = Array.new
-    @ze_konten = Array.new
-    
-    @ee_count = 0
-    @ze_count = 0
-    @ozb_konten.each do |konto|
-      if konto.EEKonto.count > 0 then
-        @ee_konten.push(konto.EEKonto.first)
-        @ee_count += 1
-      end
-      if konto.ZEKonto.count > 0 then
-        @ze_konten.push(konto.ZEKonto.first)
-        @ze_count += 1
-      end
-    end
-  end
-    
+  # done
   def new
-    if current_OZBPerson.canEditB then 
-      searchKtoNr()
-      @person = Person.where( :pnr => params[:id] ).first
-      @ozb_konten = OZBKonto.where( :mnr => params[:id] )
-      @ozb_konto = OZBKonto.new
-
-      if params[:typ] == "EE" then      
-        count = 0
-        @ozb_konten.each do |konto|
-          if konto.EEKonto.count > 0 then
-            count += 1
-          end
-        end
-       
-        # Neue Kontonummer erzeugen
-        @newKtoNr = (count + 5).to_s
-        (1..(4-@person.pnr.to_s.length)).each do |i|
-          @newKtoNr += "0"
-        end
-        @newKtoNr += @person.pnr.to_s
-        
-        render "new_ee.html.erb"
-      end
-      
-      if params[:typ] == "ZE" then
-        count = 0
-        @ozb_konten.each do |konto|
-          if konto.ZEKonto.count > 0 then
-            count += 1
-          end
-        end
-       
-        # Neue Kontonummer erzeugen
-        @newKtoNr = (count + 1).to_s
-        (1..(4-@person.pnr.to_s.length)).each do |i|
-          @newKtoNr += "0"
-        end
-        @newKtoNr += @person.pnr.to_s
-        
-        render "new_ze.html.erb"
-      end
-    else
-      redirect_to "/"
-    end
-  end
-  
-  def create
-    if current_OZBPerson.canEditB then
-      @errors = Array.new
-      @ozb_konto = OZBKonto.new
-      
-      # OZB Konto
-      # Existiert die Kontonummer bereits?
-      kto = OZBKonto.where("ktoNr = ?", params[:ozb_konto][:ktoNr]).first
-      ktoEE = EEKonto.where("ktoNr = ?", params[:ozb_konto][:ktoNr]).first
-      
-      if not(kto.nil? and ktoEE.nil?) then
-        error = ActiveModel::Errors.new(@ozb_konto)
-        error.add("","Diese Kontonummer ist bereits vergeben.")
-        @errors.push(error)
-      else
-        @ozb_konto = OZBKonto.new(params[:ozb_konto])
-        @ozb_konto.ktoEinrDatum = Time.now
-        @ozb_konto.waehrung = "EUR"
-        @ozb_konto.mnr = params[:id]
-        @errors.push(@ozb_konto.validate!)
-        
-        # Neuen Kontenverlauf hinzufügen
-        @verlauf = KKLVerlauf.new( :ktoNr => params[:ozb_konto][:ktoNr], :kklAbDatum => Time.now, :kkl => params[:kkl] )
-        @errors.push(@verlauf.validate!)
-        
-        
-        # EE Konto
-        if params[:typ] == "EE" then
-          # Bankverbindung: id, :pnr, :bankKtoNr, :blz, :bic, :iban, :bankName    
-          @bankverbindung = Bankverbindung.new( :pnr => params[:id], :bankKtoNr => params[:bankKtoNr], :blz => params[:blz], :bic => params[:bic], 
-                                                   :iban => params[:iban], :bankName => params[:bankName] )
-          @errors.push(@bankverbindung.validate!)
-          
-          # EE-Konto:  :ktoNr, :bankId, :kreditlimit
-          @ee_konto = EEKonto.new( :ktoNr => params[:ozb_konto][:ktoNr], :bankId => 1, :kreditlimit => params[:kreditlimit] )
-          @errors.push(@ee_konto.validate!)
-        end
-        
-        
-        # ZE Konto
-        if params[:typ] == "ZE" then
-          #ZE-Konto:  :ktoNr, :eeKtoNr, :pgNr, :zeNr, :zeAbDatum, :zeEndDatum, :zeBetrag, :laufzeit, :zahlModus, :tilgRate, :ansparRate, :kduRate, :rduRate, :zeStatus
-          @ze_konto = ZEKonto.new( :ktoNr => params[:ozbKtoNr], :eeKtoNr => params[:eeKtoNr], :pgNr => params[:id], :zeNr => params[:zeNr],  
-                                      :zeBetrag => params[:zeBetrag], :laufzeit => params[:laufzeit], :zahlModus => params[:zahlModus], 
-                                      :tilgRate => params[:tilgRate], :ansparRate => params[:ansparRate], :kduRate => params[:kduRate], 
-                                      :rduRate => params[:rduRate], :zeStatus => params[:zeStatus] )
-
-          if !params[:zeAbDatum].nil? && params[:zeAbDatum] != "" then
-            @ze_konto.zeAbDatum = Date.parse(params[:zeAbDatum])
-          end
-          
-          if !params[:zeEndDatum].nil? && params[:zeEndDatum] != "" then
-            @ze_konto.zeEndDatum = Date.parse(params[:zeEndDatum])
-          end
-          
-          @errors.push(@ze_konto.validate!)
-        end
-      end
-      
-      # Auswertung der Validierung
-      @error_count = 0
-      @errors.each do |error| 
-        if !error.nil? && error.any?
-          @error_count += error.count 
-        end 
-      end
-      
-      if @error_count > 0 then
-        if params[:typ] == "EE" then 
-          render "new_ee" 
-        else
-          if params[:typ] == "ZE" then
-            searchKtoNr
-            render "new_ze"
-          else
-            redirect_to "/"
-          end
-        end
-        
-      else
-      
-        if params[:typ] == "EE" or params[:typ] == "ZE" then
-          @ozb_konto.save
-          @verlauf.save
-        end
-        
-        if params[:typ] == "EE" then 
-          @bankverbindung.save
-          @ee_konto.bankId = @bankverbindung.id
-          @ee_konto.save
-        end
-        
-        if params[:typ] == "ZE" then 
-          @ze_konto.save
-        end
-        
-        get_konten()
-        redirect_to :action => "index", :notice => "Konto erfolgreich angelegt."   
-      end
-    else
-      redirect_to "/"
-    end
-  end
-  
-  
-  def update
-    if current_OZBPerson.canEditB then
-      @errors = Array.new
-      @ozb_konto = OZBKonto.where( :ktoNr => params[:ktoNr] ).first
+    @action = "new"
     
-      if params[:typ] == "EE" then 
-        @ee_konto = @ozb_konto.EEKonto.first
-        @bankverbindung = Bankverbindung.where( :id => @ee_konto.bankId ).first
-        
-        @ee_konto.kreditlimit = params[:kreditlimit]
-        @errors.push(@ee_konto.validate!)
-        
-        @bankverbindung.bankKtoNr = params[:bankKtoNr]
-        @bankverbindung.bankName = params[:bankName]
-        @bankverbindung.blz = params[:blz]
-        @bankverbindung.bic = params[:bic]
-        @bankverbindung.iban = params[:iban]
-        
-        @errors.push(@bankverbindung.validate!)
-      end
+    # view variables: OZBPerson, Person -> DRY!
+    @ozb_person = OzbPerson.find(params[:mnr])
+    @person = @ozb_person.Person
+    
+    # create new OZBKonto to get fields
+    @ozb_konto = OzbKonto.new
+    
+    if params[:kontotyp] == "EE"
+      render "new_ee"
+    elsif params[:kontotyp] == "ZE"
+      render "new_ze"
+    end
+  end
+
+  # done
+  def create
+    @ozb_konto = OzbKonto.new(params[:ozb_konto])
+    @ozb_konto.SachPNR = 1337 # please fix this for production! (I don't know where the current users ID is stored)
+    
+    if (@ozb_konto.save)
+      # OK
+      flash[:notice] = "OZBKonto erfolgreich angelegt."
       
-      if params[:typ] == "ZE" then
-        @ze_konto = ZEKonto.where( :ktoNr => params[:zeKtoNr] ).first
-        
-        if !params[:zeEndDatum].nil? && params[:zeEndDatum] != "" then
-          @ze_konto.zeEndDatum = params[:zeEndDatum]
-        end
-       
-        @ze_konto.zahlModus = params[:zahlModus]
-        @ze_konto.tilgRate = params[:tilgRate]
-        @ze_konto.ansparRate = params[:ansparRate]
-        @ze_konto.kduRate = params[:kduRate]
-        @ze_konto.rduRate = params[:rduRate]
-        
-        @errors.push(@ze_konto.validate!)
-      end
-      
-      
-      # Auswertung der Validierung
-      @error_count = 0
-      @errors.each do |error| 
-        if !error.nil? && error.any?
-          @error_count += error.count 
-        end 
-      end
-      
-     
-      if @error_count > 0 then
-        if params[:typ] == "EE" then 
-          render "edit_ee" 
-        else
-          if params[:typ] == "ZE" then
-            searchKtoNr()
-            render "edit_ze"
-          else
-            redirect_to "/"
-          end
-        end        
-      else        
-        if params[:typ] == "EE" then 
-          @bankverbindung.save
-          @ee_konto.save
-        end        
-        if params[:typ] == "ZE" then 
-          @ze_konto.save
-        end
-        get_konten()
-        redirect_to :action => "index", :notice => "Konto erfolgreich angelegt."   
-      end
+      redirect_to :action => "index"
     else
-      redirect_to "/"
+      # Error
+      @action = "new"
+      
+      # view variables: OZBPerson, Person -> DRY!
+      @ozb_person = OzbPerson.find(params[:mnr])
+      @person = @ozb_person.Person
+      
+      if params[:kontotyp] == "EE"
+        render "new_ee"
+      elsif params[:kontotyp] == "ZE"
+        render "new_ze"
+      end
     end
   end
   
-  
+  # done
   def edit
-    if current_OZBPerson.canEditB then 
-      searchKtoNr()
-      @ozb_konto = OZBKonto.where( :ktoNr => params[:ktoNr] ).first
-      if params[:typ] == "EE" then
-        @ee_konto = @ozb_konto.EEKonto.first
-        @bankverbindung = Bankverbindung.where( :id => @ee_konto.bankId ).first
-        
-        render "edit_ee.html.erb"
-      end
+    @action = "edit"
+    
+    # view variables: OZBPerson, Person -> DRY!
+    @ozb_person = OzbPerson.find(params[:mnr])
+    @person = @ozb_person.Person
+    
+    @ozb_konto = OzbKonto.latest(params[:ktoNr])
+    
+    if params[:kontotyp] == "EE"
+      render "edit_ee"
+    elsif params[:kontotyp] == "ZE"
+      render "edit_ze"
+    end
+  end
+  
+  # done
+  def update
+    # change old record and add a new one
+    #@ozb_konto = OzbKonto.latest(params[:ktoNr])
+    ozb_latest = OzbKonto.latest(params[:ktoNr])
+    
+    ActiveRecord::Base.transaction do
+      # in Model -> Abhängigkeiten selbst regeln!
+      ozb_latest.GueltigBis = Time.now
+      ozb_latest.ee_konto.GueltigBis = Time.now
       
-      if params[:typ] == "ZE" then
-        @ze_konto = @ozb_konto.ZEKonto.first
+      @ozb_konto = OzbKonto.new(params[:ozb_konto])
+      @ozb_konto.SachPNR = 1337 # please fix this for production! (I don't know where the current users ID is stored)
+      
+      if (@ozb_konto.save)
+      #if (@ozb_konto.update_attributes(params[:ozb_konto]))
+        # OK
+        flash[:notice] = "OZBKonto erfolgreich aktualisiert."
         
-        render "edit_ze.html.erb"
+        redirect_to :action => "index"
+      else
+        # Error
+        @action = "edit"
+        
+        # view variables: OZBPerson, Person -> DRY!
+        @ozb_person = OzbPerson.find(params[:mnr])
+        @person = @ozb_person.Person
+        
+        if params[:kontotyp] == "EE"
+          render "edit_ee"
+        elsif params[:kontotyp] == "ZE"
+          render "edit_ze"
+        end
       end
-    else
-      redirect_to "/"
-    end  
+    end
   end
   
   def show
     @ozb_konto = OZBKonto.where( :ktoNr => params[:ktoNr] ).first
     if params[:typ] == "EE" then
-      @konto = @ozb_konto.EEKonto.first
+      @konto = @ozb_konto.ee_konto.first
     end
     
     if params[:typ] == "ZE" then
-      @konto = @ozb_konto.ZEKonto.first
+      @konto = @ozb_konto.ze_konto.first
     end
     
     render "show.html.erb"
@@ -344,5 +170,4 @@ class OzbKontoController < ApplicationController
     @ozb_konto = OZBKonto.where( :ktoNr => params[:ktoNr] ).first
     @verlauf = @ozb_konto.KKLVerlauf
   end
-
 end

@@ -1,61 +1,35 @@
-class KKLVerlauf < ActiveRecord::Base
-  set_table_name "KKLVerlauf"
-  set_primary_key :id
+class KklVerlauf < ActiveRecord::Base
+  set_table_name "kklverlauf"
+  self.primary_key = :id
   
   # attributes
   attr_accessible :ktoNr, :kklAbDatum, :kkl
   
   # associations
-  belongs_to :OZBKonto, :foreign_key => :ktoNr
-  belongs_to :Kontenklasse, :foreign_key => :kkl
+  belongs_to :ozb_konto, :foreign_key => :ktoNr
+  belongs_to :kontenklasse, :foreign_key => :kkl
   
   # validations
-  # ...
+  validates :ktoNr, :presence => { :format => { :with => /[0-9]+/ }, :message => "Bitte geben Sie eine gültige Kontonummer an." }
+  validates :kkl, :presence => { :format => { :with => /[0-9]+/ }, :message => "Bitte geben Sie eine gültige Kontenklasse an." }
+  
+  before_create :set_ab_datum
   
   # column names
   HUMANIZED_ATTRIBUTES = {
-    :id => 'ID',
-    :ktoNr => 'Konto-Nr.',
+    :id         => 'ID',
+    :ktoNr      => 'Konto-Nr.',
     :kklAbDatum => 'Ab Datum',
-    :kkl    => 'Kontenklasse'
+    :kkl        => 'Kontenklasse'
   }
 
   def self.human_attribute_name(attr, options={})
     HUMANIZED_ATTRIBUTES[attr.to_sym] || super
   end
   
-  def validate!
-    errors = ActiveModel::Errors.new(self)
-    
-    # Kontonummer
-    if self.ktoNr.nil? then
-      errors.add(:ktoNr, "Bitte geben Sie eine Kontonummer an.")
-    else
-      if !self.ktoNr.to_s.match(/[0-9]+/) then
-        errors.add(:ktoNr, "Die Kontonummer muss eine Zahl sein.")
-      end
+  def set_ab_datum
+    if (self.kklAbDatum.blank?)
+      self.kklAbDatum = Date.today
     end
-    
-    # Kontenklassenablauf Datum
-    if self.kklAbDatum.nil? then
-      errors.add(:kklAbDatum, "Bitte geben sie ein Kontenklassenablauf-Datum an.")
-    else
-      if !self.kklAbDatum.to_s.match(/[0-9]{4}-[0-9][0-9]-[0-9][0-9]/) then
-        errors.add(:kklAbDatum, "Bitte geben sie das Kontenklassenablauf-Datum im Format: yyyy-mm-dd an.")
-      end
-    end
-    
-    # Kontenklasse
-    if self.kkl.nil? then
-      errors.add(:kkl, "Bitte geben sie eine Kontenklasse an.")
-    else
-      if !self.ktoNr.to_s.match(/[0-9]+/) then
-        errors.add(:ktoNr, "Die Kontenklasse muss eine Zahl sein.")
-      end
-    end
-    
-    
-    return errors
   end
-
 end

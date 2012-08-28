@@ -1,19 +1,12 @@
 # encoding: UTF-8
-class OZBPersonController < ApplicationController
-  
-  before_filter :authenticate_OZBPerson!
-  
+class OzbPersonController < ApplicationController
   @@Rollen = Hash["Mitglied", "M", "Foerdermitglied", "F", "Partner", "P", "Gesellschafter", "G", "Student", "S"]
   
   #Workaround - Da Ruby 1.8.7 die key()-Funktion nicht kennt
   @@Rollen2 = Hash["M", "Mitglied", "F", "Foerdermitglied", "P", "Partner", "G", "Gesellschafter", "S", "Student"]
 
   def index
-    if current_OZBPerson.canEditA then
-      @OZBPersonen = OZBPerson.paginate(:page => params[:page], :per_page => 5)
-    else
-      redirect_to "/"
-    end
+    @OZBPersonen = OzbPerson.find(:all)
   end
   
   def edit
@@ -37,6 +30,7 @@ class OZBPersonController < ApplicationController
     when "S"
       @Student = Student.find(@OZBPerson.mnr)
     end
+	
     if current_OZBPerson.canEditA || current_OZBPerson.mnr.to_s == params[:id] then
       @disabled = false;
     else

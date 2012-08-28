@@ -1,15 +1,19 @@
 source 'http://rubygems.org'
 
-gem 'rails' #, '3.0.7'
+gem 'rails', '3.2.8'
+
+# Validation Errors
+gem 'dynamic_form'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 gem 'mysql'
-#gem 'sqlite3'
+
+# Composite (multiple primary keys)
 gem 'composite_primary_keys'
 
-#Listendarstellung
+# Listendarstellung
 gem 'will_paginate'
 
 # Login-Manager

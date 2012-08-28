@@ -2,9 +2,9 @@ class CreateZEKonto < ActiveRecord::Migration
   def self.up
     create_table(:ZEKonto, :primary_key => :ktoNr) do |t|
       # Kontonummer PS, FS
-      t.integer :ktoNr, :null => false, :uniqueness => true, :limit => 5
+      t.integer :ktoNr, :null => false, :uniqueness => false, :limit => 5
       # EEKtoNr FS
-      t.integer :eeKtoNr, :null => false, :uniqueness => true, :limit => 5
+      t.integer :eeKtoNr, :null => false, :uniqueness => false, :limit => 5
       # Pgnr
       t.integer :pgNr, :limit => 2, :default => nil
       # zeNr

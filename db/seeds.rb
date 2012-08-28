@@ -20,18 +20,18 @@ tel = Telefon.create( :pnr => person5.pnr, :telefonNr => "072453021", :telefonTy
 tel = Telefon.create( :pnr => person6.pnr, :telefonNr => "072450483", :telefonTyp => "Fest" )
 
 # OZB Personen
-ozbPerson = OZBPerson.create( :mnr => person.pnr, :ueberPnr => person.pnr, :email => "person1@ozb.de", :password => "123456", :pSaldo => 50,
+ozbPerson = OzbPerson.create( :mnr => person.pnr, :ueberPnr => person.pnr, :email => "person1@ozb.de", :password => "123456", :pSaldo => 50,
                               :ktoEinrDatum => Date.new(), :saldoDatum => Date.new(), :canEditA =>"true", :canEditB =>"true", :canEditC =>"true",
                               :canEditD =>"true" )
-ozbPartner = OZBPerson.create( :mnr => person2.pnr, :ueberPnr => person2.pnr, :email => "partner@ozb.de", :password => "123456",
+ozbPartner = OzbPerson.create( :mnr => person2.pnr, :ueberPnr => person2.pnr, :email => "partner@ozb.de", :password => "123456",
                               :ktoEinrDatum => Date.new(), :saldoDatum => Date.new(), :pSaldo => 61 )
-ozbPerson3 = OZBPerson.create( :mnr => person3.pnr, :ueberPnr => person3.pnr, :email => "person3@ozb.de", :password => "123456",
+ozbPerson3 = OzbPerson.create( :mnr => person3.pnr, :ueberPnr => person3.pnr, :email => "person3@ozb.de", :password => "123456",
                               :ktoEinrDatum => Date.new(), :saldoDatum => Date.new(), :pSaldo => 60 )
-ozbPerson2 = OZBPerson.create( :mnr => person4.pnr, :ueberPnr => person4.pnr, :email => "person4@ozb.de", :password => "123456",
+ozbPerson2 = OzbPerson.create( :mnr => person4.pnr, :ueberPnr => person4.pnr, :email => "person4@ozb.de", :password => "123456",
                               :ktoEinrDatum => Date.new(), :saldoDatum => Date.new(), :pSaldo => 42 )
-ozbPerson5 = OZBPerson.create( :mnr => person5.pnr, :ueberPnr => person5.pnr, :email => "person5@ozb.de", :password => "123456",
+ozbPerson5 = OzbPerson.create( :mnr => person5.pnr, :ueberPnr => person5.pnr, :email => "person5@ozb.de", :password => "123456",
                               :ktoEinrDatum => Date.new(), :saldoDatum => Date.new(), :pSaldo => 210 )
-ozbPerson4 = OZBPerson.create( :mnr => person6.pnr, :ueberPnr => person6.pnr, :email => "person6@ozb.de", :password => "123456",
+ozbPerson4 = OzbPerson.create( :mnr => person6.pnr, :ueberPnr => person6.pnr, :email => "person6@ozb.de", :password => "123456",
                               :ktoEinrDatum => Date.new(), :saldoDatum => Date.new(), :pSaldo => 120 )
 
 
@@ -51,11 +51,11 @@ teilname = Teilnahme.create( :pnr => person.pnr, :vnr => veranstaltung.vnr, :tei
 veranstaltungsart = Veranstaltungsart.create( :vaBezeichnung => "Eierschaukeln" )
 
 # OZB Konto
-ozbKonto = OZBKonto.create( :ktoNr => 50001, :mnr => ozbPerson.mnr, :wSaldo => 520.21 )
-ozbKonto2 = OZBKonto.create( :ktoNr => 50004, :mnr => ozbPerson2.mnr, :wSaldo => 1231.32 )
-ozbKonto3 = OZBKonto.create( :ktoNr => 50005, :mnr => ozbPerson3.mnr, :wSaldo => 83920.12 )
-ozbKonto4 = OZBKonto.create( :ktoNr => 50006, :mnr => ozbPerson4.mnr, :wSaldo => 9227.41 )
-ozbGesellschafterKonto = OZBKonto.create( :ktoNr => 10002, :mnr => ozbPartner.mnr, :wSaldo => 10000 )  
+ozbKonto = OzbKonto.create( :ktoNr => 50001, :mnr => ozbPerson.mnr, :wSaldo => 520.21 )
+ozbKonto2 = OzbKonto.create( :ktoNr => 50004, :mnr => ozbPerson2.mnr, :wSaldo => 1231.32 )
+ozbKonto3 = OzbKonto.create( :ktoNr => 50005, :mnr => ozbPerson3.mnr, :wSaldo => 83920.12 )
+ozbKonto4 = OzbKonto.create( :ktoNr => 50006, :mnr => ozbPerson4.mnr, :wSaldo => 9227.41 )
+ozbGesellschafterKonto = OzbKonto.create( :ktoNr => 10002, :mnr => ozbPartner.mnr, :wSaldo => 10000 )  
 
 
 # Buchungen
@@ -76,14 +76,14 @@ bankverbindung = Bankverbindung.create( :pnr => person.pnr, :blz => 213123 )
 
 
 # EE Konten
-eeKonto = EEKonto.create( :ktoNr => ozbKonto.ktoNr, :bankId => bankverbindung.id )
+eeKonto = EeKonto.create( :ktoNr => ozbKonto.ktoNr, :bankId => bankverbindung.id )
 
 
 # Projektgruppen
 projGruppe = Projektgruppe.create()
 
 # ZE Konten
-zeKonto = ZEKonto.create( :ktoNr => ozbGesellschafterKonto.ktoNr, :eeKtoNr => eeKonto.ktoNr, :laufzeit => 23, :tilgRate => 200, 
+zeKonto = ZeKonto.create( :ktoNr => ozbGesellschafterKonto.ktoNr, :eeKtoNr => eeKonto.ktoNr, :laufzeit => 23, :tilgRate => 200, 
                           :pgNr => projGruppe.pgNr )
 
 
@@ -99,11 +99,11 @@ kkl3 = Kontenklasse.create(:kkl => 3, :prozent => 50.0, :kklAbDatum => Time.now)
 
 
 # Kontenklassenverlaeufe
-kklVerlauf = KKLVerlauf.create( :ktoNr => eeKonto.ktoNr, :kklAbDatum => Time.now, :kkl => kkl.kkl )
-kklVerlauf = KKLVerlauf.create( :ktoNr => zeKonto.ktoNr, :kklAbDatum => Time.now, :kkl => kkl2.kkl )
-kklVerlauf = KKLVerlauf.create( :ktoNr => ozbKonto2.ktoNr, :kklAbDatum => Time.now, :kkl => kkl2.kkl )
-kklVerlauf = KKLVerlauf.create( :ktoNr => ozbKonto3.ktoNr, :kklAbDatum => Time.now, :kkl => kkl3.kkl )
-kklVerlauf = KKLVerlauf.create( :ktoNr => ozbKonto4.ktoNr, :kklAbDatum => Time.now, :kkl => kkl.kkl )
+kklVerlauf = KklVerlauf.create( :ktoNr => eeKonto.ktoNr, :kklAbDatum => Time.now, :kkl => kkl.kkl )
+kklVerlauf = KklVerlauf.create( :ktoNr => zeKonto.ktoNr, :kklAbDatum => Time.now, :kkl => kkl2.kkl )
+kklVerlauf = KklVerlauf.create( :ktoNr => ozbKonto2.ktoNr, :kklAbDatum => Time.now, :kkl => kkl2.kkl )
+kklVerlauf = KklVerlauf.create( :ktoNr => ozbKonto3.ktoNr, :kklAbDatum => Time.now, :kkl => kkl3.kkl )
+kklVerlauf = KklVerlauf.create( :ktoNr => ozbKonto4.ktoNr, :kklAbDatum => Time.now, :kkl => kkl.kkl )
 
 
 

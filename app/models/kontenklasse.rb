@@ -10,7 +10,9 @@ class Kontenklasse < ActiveRecord::Base
   has_many :KKLVerlauf, :foreign_key => :kkl # no one or many
   
   # validations
-  # ...
+  validates :kkl, :presence => { :format => { :with => /[0-9]+/ }, :message => "Bitte geben Sie eine gültige Klasse an." }
+  validates :kklAbDatum, :presence => { :format => { :with => /\d{4}-\d{2}-\d{2}/ }, :message => "Bitte geben Sie eine gültiges Kontenklassenverlaufdatum an." }
+  validates :prozent, :presence => { :format => { :with => /[0-9]+/ }, :message => "Bitte geben Sie einen gültigen Prozentsatz an." }
   
   # column names
   HUMANIZED_ATTRIBUTES = {
@@ -21,24 +23,6 @@ class Kontenklasse < ActiveRecord::Base
 
   def self.human_attribute_name(attr, options={})
     HUMANIZED_ATTRIBUTES[attr.to_sym] || super
-  end
-  
-  def validate!
-    errors = ActiveModel::Errors.new(self)
-
-    if self.kkl.nil? then
-      errors.add("", "Kontenklasse darf nicht leer sein.")
-    end
-    
-    if self.prozent < 0 then
-      errors.add("","Bitte geben sie einen Prozentwert größer 0 an.")
-    end
-    
-    if self.kklAbDatum.nil? then
-      errors.add("", "Bitte geben sie ein Datum an.")
-    end
-    
-    return errors
   end
   
   # Liefert einen detaillierten String mit dem Prozentsatz

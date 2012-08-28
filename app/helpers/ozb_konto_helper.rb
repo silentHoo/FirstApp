@@ -1,2 +1,22 @@
 module OzbKontoHelper
+  
+  # builds the relation objects if they're not already assigned via mass-assignment
+  def setup_ee_konto(ozb_konto)
+    # create new KKLVerlauf to get fields
+    if (ozb_konto.kkl_verlauf.nil?)
+       ozb_konto.build_kkl_verlauf # has_one
+    end
+    
+    # create new EEKonto to get fields
+    if (ozb_konto.ee_konto.nil?)
+      ozb_konto.build_ee_konto # has_one
+    end
+    
+    # create new Bankverbindung to get fields
+    if (ozb_konto.ee_konto.bankverbindung.nil?)
+      ozb_konto.ee_konto.build_bankverbindung # belongs_to
+    end
+    
+    return ozb_konto
+  end
 end

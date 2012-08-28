@@ -1,7 +1,7 @@
 # encoding: UTF-8
 class Buergschaft < ActiveRecord::Base 
-  set_table_name "Buergschaft"
-  set_primary_keys :pnrB, :mnrG
+  self.table_name = "Buergschaft"
+  self.primary_keys = :pnrB, :mnrG
   
   # attributes
   attr_accessible :pnrB, :mnrG, :ktoNr, :sichAbDatum, :sichEndDatum, :sichBetrag, :sichKurzBez
@@ -10,6 +10,7 @@ class Buergschaft < ActiveRecord::Base
   belongs_to :person, :foreign_key => :pnrB
   belongs_to :OZBPerson, :foreign_key => :mnrG
   belongs_to :ZEKonto, :foreign_key => :ktoNr
+  has_one :sachbearbeiter, :class_name => "Person", :foreign_key => :Pnr, :primary_key => :SachPNR, :order => "GueltigBis DESC"
   
   # validations
   # ...

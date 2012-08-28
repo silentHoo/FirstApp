@@ -2,9 +2,9 @@ class CreateOZBKonto < ActiveRecord::Migration
   def self.up
     create_table(:OZBKonto, :primary_key => :ktoNr) do |t| 
       # KtoNr PS
-      t.integer :ktoNr, :null => false, :uniqueness => true, :limit => 5
+      t.integer :ktoNr, :null => false, :uniqueness => false, :limit => 5
       # Mitgliedsnummer FS
-      t.integer :mnr, :null => false, :uniqueness => true, :limit => 10
+      t.integer :mnr, :null => false, :uniqueness => false, :limit => 10
       # Kontoeinrichtungsdatum
       t.date :ktoEinrDatum
       # Waehrung

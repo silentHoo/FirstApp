@@ -1,25 +1,36 @@
+# TODO: clean up all the routes in the views with url helpers (link_to and url_for)
+
 OZB::Application.routes.draw do
   
   # Devise - Login Management
-  devise_for :OZBPerson
+  devise_for :OzbPerson
   
   # OZBPerson
-  match '/OZBPerson' => 'OZBPerson#index'
-  match '/OZBPerson/new' => 'OZBPerson#new'
-  match '/OZBPerson/new' => 'OZBPerson#searchOZBPerson'
-  match '/OZBPerson/save' => 'OZBPerson#create'
-	match '/OZBPerson/:id' => 'OZBPerson#edit', :via => :GET
-	match '/OZBPerson/:id' => 'OZBPerson#update', :via => :POST  
-  match '/OZBPerson/:id/delete' => 'OZBPerson#delete'
-  match '/OZBPerson/:id/Konto' => 'OzbKonto#index'
-  match '/OZBPerson/:id/Konto/:typ/new' => 'OzbKonto#new'
-  match '/buergschaften/Konto/:typ/new' => 'OzbKonto#searchKtoNr'
-  match '/OZBPerson/:id/Konto/:typ' => 'OzbKonto#create', :via => :POST
-  match '/OZBPerson/:id/Konto/:typ/:ktoNr' => 'OzbKonto#edit', :via => :GET
-  match '/OZBPerson/:id/Konto/:typ/:ktoNr' => 'OzbKonto#update', :via => :POST
-  match '/OZBPerson/:id/Konto/:typ/:ktoNr/delete' => 'OzbKonto#delete'
-  match '/OZBPerson/:id/Konto/:typ/:ktoNr/verlauf' => 'OzbKonto#verlauf'
-  match '/OZBPerson/:id/Konto/:typ/:ktoNr/buchungen' => 'OzbKonto#show', :via => :GET
+  match '/OZBPerson' => 'ozb_person#index', :via => :GET
+  
+  match '/OZBPerson/:mnr/OZBKonten' => 'ozb_konto#index', :via => :GET
+  match '/OZBPerson/:mnr/OZBKonto/:kontotyp/new' => 'ozb_konto#new', :via => :GET
+  match '/OZBPerson/:mnr/OZBKonto/:kontotyp/new' => 'ozb_konto#create', :via => :POST
+  match '/OZBPerson/:mnr/OZBKonto/:kontotyp/:ktoNr/edit' => 'ozb_konto#edit', :via => :GET
+  match '/OZBPerson/:mnr/OZBKonto/:kontotyp/:ktoNr/edit' => 'ozb_konto#update', :via => :PUT
+  match '/OZBPerson/:mnr/OZBKonto/:kontotyp/:ktoNr/delete' => 'ozb_konto#destroy', :via => :DELETE
+  
+  match '/OZBPerson/new' => 'ozb_person#new'
+  match '/OZBPerson/new' => 'ozb_person#searchOZBPerson'
+  match '/OZBPerson/save' => 'ozb_person#create'
+	match '/OZBPerson/:id' => 'ozb_person#edit', :via => :GET
+	match '/OZBPerson/:id' => 'ozb_person#update', :via => :POST  
+  match '/OZBPerson/:id/delete' => 'ozb_person#delete'
+  
+  match '/OZBPerson/:id/Konto' => 'ozb_konto#index'
+  match '/OZBPerson/:id/Konto/:typ/new' => 'ozb_konto#new'
+  match '/buergschaften/Konto/:typ/new' => 'ozb_konto#searchKtoNr'
+  match '/OZBPerson/:id/Konto/:typ' => 'ozb_konto#create', :via => :POST
+  match '/OZBPerson/:id/Konto/:typ/:ktoNr' => 'ozb_konto#edit', :via => :GET
+  match '/OZBPerson/:id/Konto/:typ/:ktoNr' => 'ozb_konto#update', :via => :PUT
+  match '/OZBPerson/:id/Konto/:typ/:ktoNr/delete' => 'ozb_konto#delete'
+  match '/OZBPerson/:id/Konto/:typ/:ktoNr/verlauf' => 'ozb_konto#verlauf'
+  match '/OZBPerson/:id/Konto/:typ/:ktoNr/buchungen' => 'ozb_konto#show', :via => :GET
   match '/OZBPerson/:id/Daten' => 'index#error_404'
   
   # Tanlisten
@@ -37,9 +48,9 @@ OZB::Application.routes.draw do
   match '/ozbKonten' => 'reports#ozbKonten'
   
   # KKL
-  match '/ozbKonten/KKL' => 'OzbKonto#kkl', :via => :GET
-  match '/ozbKonten/KKL' => 'OzbKonto#changeKKL', :via => :POST
-  match '/ozbKonten/KKL' => 'OzbKonto#searchKtoNr'
+  match '/ozbKonten/KKL' => 'ozb_konto#kkl', :via => :GET
+  match '/ozbKonten/KKL' => 'ozb_konto#changeKKL', :via => :POST
+  match '/ozbKonten/KKL' => 'ozb_konto#searchKtoNr'
   
   # Buergschaften
   match '/buergschaften' => 'buergschaft#index'

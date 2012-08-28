@@ -10,14 +10,33 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111019115936) do
+ActiveRecord::Schema.define(:version => 20120731201037) do
 
-  create_table "Administrator", :primary_key => "pnr", :force => true do |t|
+  create_table "administrator", :primary_key => "pnr", :force => true do |t|
     t.string "adminPw",    :limit => 35, :null => false
     t.string "adminEmail"
   end
 
-  create_table "Bankverbindung", :force => true do |t|
+  create_table "adresse", :primary_key => "Pnr", :force => true do |t|
+    t.string   "Strasse"
+    t.integer  "Nr"
+    t.integer  "PLZ"
+    t.string   "Ort"
+    t.datetime "GueltigVon"
+    t.datetime "GueltigBis"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "banks", :force => true do |t|
+    t.integer  "BLZ"
+    t.string   "BIC"
+    t.string   "BankName"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "bankverbindung", :force => true do |t|
     t.integer "pnr",                     :null => false
     t.string  "bankKtoNr", :limit => 10
     t.integer "blz"
@@ -26,7 +45,7 @@ ActiveRecord::Schema.define(:version => 20111019115936) do
     t.string  "bankName",  :limit => 35
   end
 
-  create_table "Buchung", :id => false, :force => true do |t|
+  create_table "buchung", :id => false, :force => true do |t|
     t.integer "buchJahr",                                                                   :null => false
     t.integer "ktoNr",        :limit => 8,                                                  :null => false
     t.string  "bnKreis",      :limit => 2,                                                  :null => false
@@ -44,7 +63,7 @@ ActiveRecord::Schema.define(:version => 20111019115936) do
     t.integer "pSaldoAcc",                                                 :default => 0,   :null => false
   end
 
-  create_table "BuchungOnline", :force => true do |t|
+  create_table "buchungonline", :force => true do |t|
     t.integer "mnr",                                     :null => false
     t.date    "ueberwdatum",                             :null => false
     t.integer "sollktonr",   :limit => 8, :default => 0, :null => false
@@ -54,7 +73,7 @@ ActiveRecord::Schema.define(:version => 20111019115936) do
     t.integer "blocknr",     :limit => 2,                :null => false
   end
 
-  create_table "Buergschaft", :id => false, :force => true do |t|
+  create_table "buergschaft", :id => false, :force => true do |t|
     t.integer "pnrB",                                                       :null => false
     t.integer "mnrG",                                                       :null => false
     t.integer "ktoNr",        :limit => 8,                                  :null => false
@@ -62,161 +81,203 @@ ActiveRecord::Schema.define(:version => 20111019115936) do
     t.date    "sichEndDatum"
     t.decimal "sichBetrag",                  :precision => 10, :scale => 2
     t.string  "sichKurzBez",  :limit => 200
+    t.integer "SachPNR"
   end
 
-  create_table "EEKonto", :primary_key => "ktoNr", :force => true do |t|
-    t.integer "bankId",      :limit => 3
-    t.decimal "kreditlimit",              :precision => 5, :scale => 2, :default => 0.0
+  create_table "eekonto", :primary_key => "ktoNr", :force => true do |t|
+    t.integer  "bankId",      :limit => 3
+    t.decimal  "kreditlimit",              :precision => 10, :scale => 2, :default => 0.0
+    t.datetime "GueltigVon"
+    t.datetime "GueltigBis"
+    t.integer  "SachPNR"
   end
 
-  create_table "Foerdermitglied", :primary_key => "pnr", :force => true do |t|
-    t.string  "region",         :limit => 30
-    t.decimal "foerderbeitrag",               :precision => 5, :scale => 2
+  create_table "foerdermitglied", :primary_key => "pnr", :force => true do |t|
+    t.string   "region",         :limit => 30
+    t.decimal  "foerderbeitrag",               :precision => 5, :scale => 2
+    t.datetime "GueltigVon"
+    t.datetime "GueltigBis"
+    t.integer  "SachPNR"
   end
 
-  create_table "Gesellschafter", :primary_key => "mnr", :force => true do |t|
-    t.string  "faSteuerNr",        :limit => 15
-    t.string  "faLfdNr",           :limit => 20
-    t.string  "wohnsitzFinanzamt", :limit => 50
-    t.integer "notarPnr"
-    t.date    "beurkDatum"
+  create_table "geschaeftsprozesse", :force => true do |t|
+    t.string   "Beschreibung"
+    t.boolean  "IT"
+    t.boolean  "MV"
+    t.boolean  "RW"
+    t.boolean  "ZW"
+    t.boolean  "OeA"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
   end
 
-  create_table "KKLVerlauf", :force => true do |t|
+  create_table "gesellschafter", :primary_key => "mnr", :force => true do |t|
+    t.string   "faSteuerNr",        :limit => 15
+    t.string   "faLfdNr",           :limit => 20
+    t.string   "wohnsitzFinanzamt", :limit => 50
+    t.integer  "notarPnr"
+    t.date     "beurkDatum"
+    t.datetime "GueltigVon"
+    t.datetime "GueltigBis"
+  end
+
+  create_table "kklverlauf", :force => true do |t|
     t.integer "ktoNr",      :limit => 8, :null => false
     t.date    "kklAbDatum",              :null => false
     t.string  "kkl",        :limit => 1, :null => false
   end
 
-  create_table "Kontenklasse", :primary_key => "kkl", :force => true do |t|
+  create_table "kontenklasse", :primary_key => "kkl", :force => true do |t|
     t.date    "kklAbDatum",                                                :null => false
     t.decimal "prozent",    :precision => 5, :scale => 2, :default => 0.0, :null => false
   end
 
-  create_table "Mitglied", :primary_key => "mnr", :force => true do |t|
+  create_table "mitglied", :primary_key => "mnr", :force => true do |t|
     t.date "rvDatum"
   end
 
-  create_table "OZBKonto", :primary_key => "ktoNr", :force => true do |t|
-    t.integer "mnr",                                                                         :null => false
-    t.date    "ktoEinrDatum"
-    t.string  "waehrung",     :limit => 3,                                :default => "STR"
-    t.decimal "wSaldo",                    :precision => 10, :scale => 2
-    t.integer "pSaldo"
-    t.date    "saldoDatum"
+  create_table "ozbkonto", :primary_key => "ktoNr", :force => true do |t|
+    t.integer  "mnr",                                                                         :null => false
+    t.date     "ktoEinrDatum"
+    t.string   "waehrung",     :limit => 3,                                :default => "STR"
+    t.decimal  "wSaldo",                    :precision => 10, :scale => 2
+    t.integer  "pSaldo"
+    t.date     "saldoDatum"
+    t.datetime "GueltigVon"
+    t.datetime "GueltigBis"
+    t.integer  "SachPNR"
   end
 
-  create_table "OZBPerson", :primary_key => "mnr", :force => true do |t|
+  create_table "ozbperson", :primary_key => "mnr", :force => true do |t|
     t.integer  "ueberPnr"
     t.string   "passwort",               :limit => 35
     t.date     "pwAendDatum"
-    t.boolean  "gesperrt",                              :default => false, :null => false
-    t.boolean  "canEditA",                              :default => false, :null => false
-    t.boolean  "canEditB",                              :default => false, :null => false
-    t.boolean  "canEditC",                              :default => false, :null => false
-    t.boolean  "canEditD",                              :default => false, :null => false
-    t.string   "email",                                 :default => "",    :null => false
-    t.string   "encrypted_password",     :limit => 128, :default => "",    :null => false
+    t.boolean  "gesperrt",                             :default => false, :null => false
+    t.boolean  "canEditA",                             :default => false, :null => false
+    t.boolean  "canEditB",                             :default => false, :null => false
+    t.boolean  "canEditC",                             :default => false, :null => false
+    t.boolean  "canEditD",                             :default => false, :null => false
+    t.string   "email",                                :default => "",    :null => false
+    t.string   "encrypted_password",                   :default => "",    :null => false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
-    t.integer  "sign_in_count",                         :default => 0
+    t.integer  "sign_in_count",                        :default => 0
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string   "current_sign_in_ip"
     t.string   "last_sign_in_ip"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "SachPNR"
   end
 
-  add_index "OZBPerson", ["mnr"], :name => "index_OZBPerson_on_mnr", :unique => true
-  add_index "OZBPerson", ["reset_password_token"], :name => "index_OZBPerson_on_reset_password_token", :unique => true
+  add_index "ozbperson", ["mnr"], :name => "index_OZBPerson_on_mnr", :unique => true
+  add_index "ozbperson", ["reset_password_token"], :name => "index_OZBPerson_on_reset_password_token", :unique => true
 
-  create_table "Partner", :primary_key => "mnr", :force => true do |t|
-    t.integer "mnrO",                      :null => false
-    t.string  "berechtigung", :limit => 1, :null => false
+  create_table "partner", :primary_key => "mnr", :force => true do |t|
+    t.integer  "mnrO",                      :null => false
+    t.string   "berechtigung", :limit => 1, :null => false
+    t.datetime "GueltigVon"
+    t.datetime "GueltigBis"
+    t.integer  "SachPNR"
   end
 
-  create_table "Person", :primary_key => "pnr", :force => true do |t|
-    t.string  "rolle",          :limit => 0
-    t.string  "name",           :limit => 20,                  :null => false
-    t.string  "vorname",        :limit => 15,  :default => "", :null => false
-    t.date    "geburtsdatum"
-    t.string  "strasse",        :limit => 50
-    t.string  "hausnr",         :limit => 10
-    t.integer "plz",            :limit => 8
-    t.string  "ort",            :limit => 50
-    t.string  "vermerk",        :limit => 100
-    t.string  "email"
-    t.date    "antragsdatum"
-    t.date    "aufnahmedatum"
-    t.date    "austrittsdatum"
+  create_table "person", :primary_key => "pnr", :force => true do |t|
+    t.string   "rolle",          :limit => 1
+    t.string   "name",           :limit => 20,                  :null => false
+    t.string   "vorname",        :limit => 15,  :default => "", :null => false
+    t.date     "geburtsdatum"
+    t.string   "strasse",        :limit => 50
+    t.string   "hausnr",         :limit => 10
+    t.integer  "plz",            :limit => 8
+    t.string   "ort",            :limit => 50
+    t.string   "vermerk",        :limit => 100
+    t.string   "email"
+    t.date     "antragsdatum"
+    t.date     "aufnahmedatum"
+    t.date     "austrittsdatum"
+    t.datetime "GueltigVon"
+    t.datetime "GueltigBis"
+    t.integer  "SachPNR"
   end
 
-  create_table "Projektgruppe", :primary_key => "pgNr", :force => true do |t|
+  create_table "projektgruppe", :primary_key => "pgNr", :force => true do |t|
     t.string "projGruppez"
   end
 
-  create_table "Student", :primary_key => "mnr", :force => true do |t|
-    t.string "ausbildBez",    :limit => 30
-    t.string "institutName",  :limit => 30
-    t.string "studienort",    :limit => 30
-    t.date   "studienbeginn"
-    t.date   "studienende"
-    t.string "abschluss"
+  create_table "sonderberechtigung", :force => true do |t|
+    t.integer  "Mnr"
+    t.string   "Email"
+    t.string   "Berechtigung", :limit => 3
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
   end
 
-  create_table "Tan", :id => false, :force => true do |t|
+  create_table "student", :primary_key => "mnr", :force => true do |t|
+    t.string  "ausbildBez",    :limit => 30
+    t.string  "institutName",  :limit => 30
+    t.string  "studienort",    :limit => 30
+    t.date    "studienbeginn"
+    t.date    "studienende"
+    t.string  "abschluss"
+    t.integer "SachPNR"
+  end
+
+  create_table "tan", :id => false, :force => true do |t|
     t.integer "mnr",                      :null => false
     t.integer "listNr",      :limit => 2, :null => false
     t.integer "tanNr",                    :null => false
     t.integer "tan",         :limit => 8, :null => false
     t.date    "verwendetAm"
-    t.string  "status",      :limit => 0
+    t.string  "status",      :limit => 1
   end
 
-  create_table "Tanliste", :id => false, :force => true do |t|
+  create_table "tanliste", :id => false, :force => true do |t|
     t.integer "mnr",                 :null => false
     t.integer "listNr", :limit => 2, :null => false
-    t.string  "status", :limit => 0
+    t.string  "status", :limit => 1
   end
 
-  create_table "Teilnahme", :id => false, :force => true do |t|
+  create_table "teilnahme", :id => false, :force => true do |t|
     t.integer "pnr",                   :null => false
     t.integer "vnr",      :limit => 8, :null => false
-    t.string  "teilnArt", :limit => 0
+    t.string  "teilnArt", :limit => 1
   end
 
-  create_table "Telefon", :primary_key => "lfdNr", :force => true do |t|
+  create_table "telefon", :primary_key => "lfdNr", :force => true do |t|
     t.integer "pnr",                      :null => false
     t.string  "telefonNr",  :limit => 15
     t.string  "telefonTyp", :limit => 6
   end
 
-  create_table "Veranstaltung", :primary_key => "vnr", :force => true do |t|
+  create_table "veranstaltung", :primary_key => "vnr", :force => true do |t|
     t.integer "vid",                   :null => false
     t.date    "vaDatum",               :null => false
     t.string  "vaOrt",   :limit => 30
   end
 
-  create_table "Veranstaltungsart", :force => true do |t|
+  create_table "veranstaltungsart", :force => true do |t|
     t.string "vaBezeichnung", :limit => 30
   end
 
-  create_table "ZEKonto", :primary_key => "ktoNr", :force => true do |t|
-    t.integer "eeKtoNr",    :limit => 8,                                                  :null => false
-    t.integer "pgNr",       :limit => 2
-    t.string  "zeNr",       :limit => 10
-    t.date    "zeAbDatum"
-    t.date    "zeEndDatum"
-    t.decimal "zeBetrag",                 :precision => 10, :scale => 2
-    t.integer "laufzeit",                                                                 :null => false
-    t.string  "zahlModus",  :limit => 1,                                 :default => "M"
-    t.decimal "tilgRate",                 :precision => 10, :scale => 2, :default => 0.0, :null => false
-    t.decimal "ansparRate",               :precision => 10, :scale => 2, :default => 0.0, :null => false
-    t.decimal "kduRate",                  :precision => 10, :scale => 2, :default => 0.0, :null => false
-    t.decimal "rduRate",                  :precision => 10, :scale => 2, :default => 0.0, :null => false
-    t.string  "zeStatus",   :limit => 1,                                 :default => "A", :null => false
+  create_table "zekonto", :primary_key => "ktoNr", :force => true do |t|
+    t.integer  "eeKtoNr",    :limit => 8,                                                  :null => false
+    t.integer  "pgNr",       :limit => 2
+    t.string   "zeNr",       :limit => 10
+    t.date     "zeAbDatum"
+    t.date     "zeEndDatum"
+    t.decimal  "zeBetrag",                 :precision => 10, :scale => 2
+    t.integer  "laufzeit",                                                                 :null => false
+    t.string   "zahlModus",  :limit => 1,                                 :default => "M"
+    t.decimal  "tilgRate",                 :precision => 10, :scale => 2, :default => 0.0, :null => false
+    t.decimal  "ansparRate",               :precision => 10, :scale => 2, :default => 0.0, :null => false
+    t.decimal  "kduRate",                  :precision => 10, :scale => 2, :default => 0.0, :null => false
+    t.decimal  "rduRate",                  :precision => 10, :scale => 2, :default => 0.0, :null => false
+    t.string   "zeStatus",   :limit => 1,                                 :default => "A", :null => false
+    t.datetime "GueltigVon"
+    t.datetime "GueltigBis"
+    t.integer  "SachPNR"
   end
 
 end

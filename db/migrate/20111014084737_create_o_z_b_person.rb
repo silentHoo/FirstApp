@@ -3,9 +3,9 @@ class CreateOZBPerson < ActiveRecord::Migration
     create_table(:OZBPerson, :primary_key => :mnr) do |t|
           
       # Mitgliedsnummer PS, FS
-      t.integer :mnr, :null => false, :uniqueness => true, :limit => 10
+      t.integer :mnr, :null => false, :uniqueness => false, :limit => 10
       # Personennummer FS
-      t.integer :ueberPnr, :uniqueness => true, :limit => 10
+      t.integer :ueberPnr, :uniqueness => false, :limit => 10
       # Passwort
       t.string :passwort, :limit => 35, :default => nil
       # PWAendDatum

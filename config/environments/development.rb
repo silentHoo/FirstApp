@@ -23,7 +23,20 @@ OZB::Application.configure do
   # Only use best-standards-support built into browsers
   config.action_dispatch.best_standards_support = :builtin
 	
-	#Mail Configuration
-	config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+  #Mail Configuration
+  config.action_mailer.default_url_options = { :host => 'streamserver4you.de' }
+  
+  ActionMailer::Base.delivery_method = :smtp   
+  ActionMailer::Base.perform_deliveries = true   
+  ActionMailer::Base.raise_delivery_errors = true   
+  ActionMailer::Base.smtp_settings = {   
+  	:enable_starttls_auto => false,     
+  	:address            => 'smtp.host.tld',
+  	:port               => 25,
+  	:tls                => false,
+  	:domain             => 'host.tld',
+  	:authentication     => :plain,   
+  	:user_name          => '',   
+  	:password           => '' # for security reasons you can use a environment variable too. (ENV['INFO_MAIL_PASS'])   
+  }
 end
-

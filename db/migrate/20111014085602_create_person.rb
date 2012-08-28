@@ -2,7 +2,7 @@ class CreatePerson < ActiveRecord::Migration
   def self.up
     create_table(:Person, :primary_key => :pnr) do |t|
       # PNR PS
-      t.integer :pnr, :null => false, :uniqueness => true, :limit => 10
+      t.integer :pnr, :null => false, :uniqueness => false, :limit => 10
       # Rolle                              
       t.column :rolle, "ENUM('G', 'M', 'P', 'S', 'F')" # G: Gesellschafter, M: Mitglied, P: Partner,  S: Student, F: Foerdermitglied
       # Name
