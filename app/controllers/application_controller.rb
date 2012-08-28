@@ -5,11 +5,11 @@ class ApplicationController < ActionController::Base
    # find_by_sql
   def searchKtoNr      
     if params[:ktoNr].nil? or params[:mnr].nil? then
-        @konten = OZBKonto.paginate(:page => params[:page], :per_page => 5) 
+        @konten = OzbKonto.paginate(:page => params[:page], :per_page => 5) 
     else
       if params[:ktoNr].empty? and params[:mnr].empty? and  params[:name].empty? and 
       params[:ktoEinrDatum].empty? then
-        @konten = OZBKonto.paginate(:page => params[:page], :per_page => 5) 
+        @konten = OzbKonto.paginate(:page => params[:page], :per_page => 5) 
       else
         @konten = OZBKonto;
         
@@ -83,7 +83,7 @@ class ApplicationController < ActionController::Base
         end
         
         if( !params[:sop_ktoNr].empty? ) then
-          @konten = OZBKonto.where( "ktoNr LIKE ?", "%" + params[:sop_ktoNr] + "%" )
+          @konten = OzbKonto.where( "ktoNr LIKE ?", "%" + params[:sop_ktoNr] + "%" )
           
           pnrs = Array.new
           @konten.each do |konto|

@@ -24,7 +24,7 @@ OZB::Application.configure do
   config.action_dispatch.best_standards_support = :builtin
 	
   #Mail Configuration
-  config.action_mailer.default_url_options = { :host => 'streamserver4you.de' }
+  config.action_mailer.default_url_options = { :host => 'host.tld' }
   
   ActionMailer::Base.delivery_method = :smtp   
   ActionMailer::Base.perform_deliveries = true   

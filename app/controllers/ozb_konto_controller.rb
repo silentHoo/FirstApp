@@ -1,3 +1,4 @@
+# encoding: UTF-8
 class OzbKontoController < ApplicationController
   # done
   def index

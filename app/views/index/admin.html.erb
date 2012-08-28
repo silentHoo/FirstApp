@@ -5,44 +5,34 @@
 <h2>Verwaltung</h2>
 <ul style="padding: 0; margin: 0px auto;" type="none">
   
-  <% if current_OZBPerson.canEditA then %>
     <li>
 		<a href='/OZBPerson'>Personen</a>
 		<ul>
 			<li>Personen verwalten</li>
-			<li>Konten verwalten</li>
-			<li>KKL-Verlauf</li>
+			<li>Konten verwalten (inkl. KKL-Verlauf)</li>
 		</ul>
 	</li>
-  <% end %>
-  
-  <% if current_OZBPerson.canEditB then %>
+	<li>
+		<a href="#">Kontenanzeige</a>
+		<ul>
+			<li>Buchungen</li>
+			<li>Salden</li>
+			<li>Punkte</li>
+		</ul>
+	</li>
     <li>
 		<a href='/buergschaften'>Bürgschaften</a>
 		<ul>
 			<li>Bürgschaften verwalten</li>
 		</ul>
 	</li>
-    <li>
-		<a href='/kontenklasse'>Kontenklassen</a>
-		<ul>
-			<li>Kontentklassen verwalten</li>
-		</ul>
-	</li>
 	<li>
-		Zahlungseingangskontrolle
+		<a href="#">Web-Import der Buchungen</a>
 		<ul>
-			<li>Zahlungseingänge verwalten</li>
+			<li>Saldenberechnung</li>
+			<li>Punkteberechung</li>
 		</ul>
 	</li>
-  <% end %>
-    
-  <% if current_OZBPerson.canEditC then %>
-  <% end %>
-  
-  <% if current_OZBPerson.canEditD then %>
-  <% end %>
-  
 </ul>
 
 <br />

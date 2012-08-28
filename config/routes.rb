@@ -15,6 +15,7 @@ OZB::Application.routes.draw do
   match '/OZBPerson/:mnr/OZBKonto/:kontotyp/:ktoNr/edit' => 'ozb_konto#update', :via => :PUT
   match '/OZBPerson/:mnr/OZBKonto/:kontotyp/:ktoNr/delete' => 'ozb_konto#delete'
   match '/OZBPerson/:mnr/OZBKonto/:kontotyp/:ktoNr/verlauf' => 'ozb_konto#verlauf'
+  match '/OZBKonto/kkl' => 'ozb_konto#kkl'
   
   match '/OZBPerson/new' => 'ozb_person#new'
   match '/OZBPerson/new' => 'ozb_person#searchOZBPerson'
@@ -55,6 +56,7 @@ OZB::Application.routes.draw do
   
   # Buergschaften
   match '/buergschaften' => 'buergschaft#index'
+  match '/buergschaften/ajax_ktonr_collection' => 'buergschaft#ajax_ktonr_collection'
   match '/buergschaften/new' => 'buergschaft#new'
   match '/buergschaften/new' => 'buergschaft#searchKtoNr'
   match '/buergschaften/new' => 'buergschaft#searchOZBPerson'

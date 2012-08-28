@@ -16,10 +16,21 @@ class Person < ActiveRecord::Base
    has_many :partner, :foreign_key => :mnrO, :dependent => :delete_all         # Done, getestet
    has_many :teilnahme, :foreign_key => :pnr, :dependent => :delete_all       # Done, getestet
    has_many :buergschaft, :foreign_key => :pnrB, :dependent => :delete_all    # Done, getestet
-   has_many :OZBPerson, :foreign_key => :ueberPnr, :dependent => :delete_all # Done, getestet
+   has_many :ozb_person, :foreign_key => :ueberPnr, :dependent => :delete_all # Done, getestet
    has_one :Bankverbindung, :foreign_key => :pnr, :dependent => :destroy # Done, getestet
    has_one :foerdermitglied, :foreign_key => :pnr, :dependent => :destroy
-      
+   
+  def fullname
+    self.vorname + ' ' + self.name
+  end
+  
+  def self.latest(pnr)
+    self.find(pnr, "9999-12-31 23:59:59")
+  end
+  
+  def self.latest_all
+    self.find(:all, :conditions => { :GueltigBis => "9999-12-31 23:59:59" })
+  end
 end
 
 class EmailValidator < ActiveModel::EachValidator

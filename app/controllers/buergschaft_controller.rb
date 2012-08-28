@@ -1,120 +1,97 @@
 # encoding: UTF-8
 class BuergschaftController < ApplicationController
   
-  before_filter :authenticate_OZBPerson!
-  
+  # done
   def index
-    if current_OZBPerson.canEditB then 
-      @buergschaften = Buergschaft.paginate(:page => params[:page], :per_page => 5)
-    else
-      redirect_to "/"
-    end
+    @buergschaften = Buergschaft.paginate(:page => params[:page], :per_page => 5)
+    
+    flash[:notice] = "Es sind noch keine Bürgschaften vorhanden." if @buergschaften.size == 0
+    
+    render "index"
   end
 
+  #done
   def new
-    if current_OZBPerson.canEditB then
-      @buergschaft = Buergschaft.new
-      searchKtoNr()
-      searchOZBPerson()
-
-      @tempNames = Array.new
-      @tempNames.push("")
-      @tempNames.push("")
-    else
-      redirect_to "/"
-    end
-  end
-  
-  def searchKtoNr
-    if current_OZBPerson.canEditB then
-      if( !params[:pnrB].nil? && params[:pnrB].to_i > 0 && !params[:mnrG].nil? && params[:mnrG].to_i > 0) then
-        @buergschaft = Buergschaft.find([params[:pnrB], params[:mnrG]] )
-      end
-      super
-    else
-      redirect_to "/"
-    end
-  end
-  
-  
-  def searchOZBPerson
-    if current_OZBPerson.canEditB then 
-      super
-    else
-      redirect_to "/"
-    end
+    @action = "new"
+    
+    @buergschaft = Buergschaft.new
+    
+    render "new"
   end
   
   def edit
-    if current_OZBPerson.canEditB then
-      searchKtoNr()
-      
-      @tempNames = Array.new
-      @tempNames.push("")
-      @tempNames.push("")
-    else
-      redirect_to "/"
-    end
+    @action = "edit"
+    
+    @buergschaft = Buergschaft.find(params[:pnrB], params[:mnrG])
+    
+    render "edit"
   end
+  
+  def create
+    @buergschaft = Buergschaft.new(params[:buergschaft])
+    @buergschaft.SachPNR = 1337 # please fix this for production! (I don't know where the current users ID is stored)
     
-  def create 
-    if current_OZBPerson.canEditB then
-      @buergschaft = Buergschaft.new(params[:buergschaft])
-      @errors = @buergschaft.validate(params[:pnrBName], params[:mnrGName])
-    
-      @tempNames = Array.new
-      @tempNames.push(params[:pnrBName])
-      @tempNames.push(params[:mnrGName])
-    
-      if !@errors.nil? && @errors.any? then
-       searchKtoNr()
-       searchOZBPerson()
-       render "new"
-      else
-        @buergschaft.save   
-        @buergschaften = Buergschaft.all
-        redirect_to :action => "index", :notce => "Bürgschaft erfolgreich angelegt."   
-      end
+    if (@buergschaft.save)
+      # OK
+      flash[:notice] = "Bürgschaft erfolgreich angelegt."
+      
+      redirect_to :action => "index"
     else
-      redirect_to "/"
+      # Error
+      @action = "new"
+      
+      render "new"
     end
   end
   
   def update
-    if current_OZBPerson.canEditB then
-      @buergschaft = Buergschaft.find([params[:pnrB], params[:mnrG]])
-      @buergschaft.attributes = params[:buergschaft]
-      @errors = @buergschaft.validate(params[:pnrBName], params[:mnrGName])
+    @buergschaft = Buergschaft.find(params[:pnrB], params[:mnrG])
+    
+    if (@buergschaft.update_attributes(params[:buergschaft]))
+      # OK
+      flash[:notice] = "Bürgschaft erfolgreich aktualisiert."
       
-      @tempNames = Array.new
-      @tempNames.push(params[:pnrBName])
-      @tempNames.push(params[:mnrGName])
-      
-      if !@errors.nil? && @errors.any? then 
-        searchKtoNr()
-        searchOZBPerson()
-        render "edit"
-      else
-        @buergschaft.update_attributes(params[:buergschaft])
-        redirect_to :action => "index", :notice => "Bürgschaft erfolgreich aktualisiert."   
-      end
+      redirect_to :action => "index"
     else
-      redirect_to "/"
+      # Error
+      @action = "edit"
+      
+      render "edit"
     end
   end
   
   def delete
-    if current_OZBPerson.canEditB then
-      begin
-        @buergschaft = Buergschaft.find([params[:pnrB], params[:mnrG]])
-        @buergschaft.delete
-      rescue
+    @buergschaft = Buergschaft.find([params[:pnrB], params[:mnrG]])
+    
+    if (@buergschaft.destroy)
+      # OK
+      flash[:notice] = "Bürgschaft erfolgreich gelöscht."
+    else
+      # Error
+      flash[:error] = "Fehler beim Löschen der Bürgschaft."
+    end
+    
+    redirect_to :action => "index"
+  end
+  
+  def ajax_ktonr_collection
+    g = Gesellschafter.latest(params[:mnrG])
+    
+    if (g.ozb_person.nil?)
+      render :text => "Keine Person vorhanden"
+    elsif (g.ozb_person.ozb_konto.count == 0)
+      render :text => "Keine Konten für diese Person vorhanden"
+    else
+      @ze = Array.new
+      g.ozb_person.ozb_konto.each do |o|
+        @ze.push(o.ze_konto)
       end
       
-      @buergschaften = Buergschaft.all    
-      redirect_to :action => "index"
-    else
-      redirect_to "/"
+      if (@ze.size > 1)
+        render :partial => "ajax_ktonr_collection"
+      else
+        render :text => "Keine ZE-Konten für diese Person vorhanden"
+      end
     end
   end
 

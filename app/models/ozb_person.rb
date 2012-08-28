@@ -14,10 +14,10 @@ class OzbPerson < ActiveRecord::Base
   has_one :Mitglied, :foreign_key => :mnr, :dependent => :destroy  # Done, getestet
   has_one :Student, :foreign_key => :mnr, :dependent => :destroy # Done, ungetestet
   has_one :BuchungOnline, :foreign_key => :mnr, :dependent => :destroy # Done, getestet
-  has_many :OZBKonto, :foreign_key => :mnr, :dependent => :delete_all # Done, getestet
+  has_many :ozb_konto, :foreign_key => :mnr, :dependent => :delete_all # Done, getestet
   has_many :Tanliste, :foreign_key => :mnr, :dependent => :delete_all # Done, getestet
   has_one :Gesellschafter, :foreign_key => :mnr, :dependent => :destroy # Done, getestet
-  belongs_to :Person, :foreign_key => :ueberPnr # Done, getestet
+  belongs_to :person, :class_name => "Person", :foreign_key => :ueberPnr # Done, getestet
   
   has_many :Buergschaft, :foreign_key => :mnrG, :dependent => :delete_all # Done, getestet
 end
