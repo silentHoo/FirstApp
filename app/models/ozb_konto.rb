@@ -11,7 +11,6 @@ class OzbKonto < ActiveRecord::Base
   has_one :kkl_verlauf, 
     :foreign_key => :ktoNr,
     :primary_key => :ktoNr, # :id
-    :dependent => :destroy, 
     :class_name => "KklVerlauf", 
     :order => "kklAbDatum DESC" # order is important to match the latest record!
   
@@ -59,6 +58,7 @@ class OzbKonto < ActiveRecord::Base
   before_save :set_assoc_attributes
   before_create :set_valid_time, :set_einr_datum
   before_update :set_new_valid_time
+  before_destroy :clean_all_assoc_objects
   
   # column names
   HUMANIZED_ATTRIBUTES = {
@@ -76,6 +76,24 @@ class OzbKonto < ActiveRecord::Base
 
   def self.human_attribute_name(attr, options={})
     HUMANIZED_ATTRIBUTES[attr.to_sym] || super
+  end
+  
+  # bound to callback
+  def clean_all_assoc_objects
+    ozb_konten = OzbKonto.where("ktoNr = ? AND GueltigBis < ?", self.ktoNr, "9999-12-31 23:59:59")
+    ozb_konten.each do |o|
+      o.delete
+    end
+    
+    ee_konten = EeKonto.where("ktoNr = ? AND GueltigBis < ?", self.ktoNr, "9999-12-31 23:59:59")
+    ee_konten.each do |o|
+      o.delete
+    end
+    
+    kkl_verlauf = KklVerlauf.where("ktoNr = ?", self.ktoNr)
+    kkl_verlauf.each do |o|
+      o.delete
+    end
   end
   
   # bound to callback

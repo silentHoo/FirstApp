@@ -89,4 +89,8 @@ class EeKonto < ActiveRecord::Base
   def get(ktoNr, date = Time.now)
     self.find(:all, :conditions => ["ktoNr = ? AND GueltigVon <= ? AND GueltigBis > ?", ktoNr, date, date]).first
   end
+  
+  def self.latest(ktoNr)
+    self.find(ktoNr, "9999-12-31 23:59:59")
+  end
 end
