@@ -15,24 +15,29 @@ class ZeKonto < ActiveRecord::Base
   has_one :sachbearbeiter, :class_name => "Person", :foreign_key => :Pnr, :primary_key => :SachPNR, :order => "GueltigBis DESC", :conditions => "GueltigBis = \"9999-12-31 23:59:59\"" # condition -> for historic db
   
   # validations
-  # ...
+  # validate always things you will accept nested attributes for!
+  validates :ktoNr, :presence => { :format => { :with => /[0-9]+/ }, :message => "Bitte geben Sie eine gültige Kontonummer an." }
+  validates :eeKtoNr, :presence => { :format => { :with => /[0-9]+/ }, :message => "Bitte geben Sie eine gültige EE-Kontonummer an." }
+  validates :pgNr, :presence => { :format => { :with => /[0-9]+/ }, :message => "Bitte geben Sie eine gültige Projektgruppe an." }
+  validates :zeNr, :presence => { :format => { :with => /[0-9]+/ }, :message => "Bitte geben Sie eine gültige ZE-Kontonummer an." }
+  validates :laufzeit, :presence => { :format => { :with => /[1-9]+/ }, :message => "Bitte geben Sie eine gültige Laufzeit an." }
   
   # column names
   HUMANIZED_ATTRIBUTES = {
     :ktoNr => 'Konto-Nr.',
     :eeKtoNr => 'EE Konto-Nr.',
-    :pgNr => 'pgNr',
-    :zeNr => 'zeNr',
+    :pgNr => 'Projekt',
+    :zeNr => 'ZE-Nr.',
     :zeAbDatum => 'Gültig ab',
     :zeEndDatum => 'Gültig bis',
-    :zeBetrag => 'zeBetrag',
+    :zeBetrag => 'Betrag',
     :laufzeit => 'Laufzeit',
-    :zahlModus => 'zahlModus',
+    :zahlModus => 'Zahlungsmodus',
     :tilgRate => 'Tilgungsrate',
     :ansparRate => 'Ansparrate',
-    :kduRate => 'kduRate',
-    :rduRate => 'rduRate',
-    :zeStatus => 'zeStatus'
+    :kduRate => 'KDU-Rate',
+    :rduRate => 'RDU-Rate',
+    :zeStatus => 'Status'
   }
 
   def self.human_attribute_name(attr, options={})
@@ -47,14 +52,15 @@ class ZeKonto < ActiveRecord::Base
   end
 
   before_update do
-    if(self.KtoNr)
+    if(self.ktoNr)
       if(self.GueltigBis > "9999-01-01 00:00:00")
-        copy = self.get(self.KtoNr)
+        copy = self.get(self.ktoNr)
         copy = copy.dup
-        copy.KtoNr = self.KtoNr
+        copy.KtoNr = self.ktoNr
         copy.GueltigVon = self.GueltigVon
         copy.GueltigBis = Time.now
         copy.save!
+        
         self.GueltigVon = Time.now
         self.GueltigBis = Time.zone.parse("9999-12-31 23:59:59")
       end
@@ -63,6 +69,6 @@ class ZeKonto < ActiveRecord::Base
 
   # Returns nil if at the given time no person object was valid
   def get(ktoNr, date = Time.now)
-    self.where(:KtoNr => ktoNr).where(["GueltigVon <= ?", date]).where(["GueltigBis > ?",date]).first
-  end 
+    self.find(:all, :conditions => ["ktoNr = ? AND GueltigVon <= ? AND GueltigBis > ?", ktoNr, date, date]).first
+  end
 end

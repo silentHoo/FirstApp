@@ -93,4 +93,8 @@ class EeKonto < ActiveRecord::Base
   def self.latest(ktoNr)
     self.find(ktoNr, "9999-12-31 23:59:59")
   end
+  
+  def ktonr_with_name
+    "[" + self.ktoNr.to_s + "] " + self.ozb_konto.ozb_person.person.fullname
+  end
 end

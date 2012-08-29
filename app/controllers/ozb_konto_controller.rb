@@ -77,26 +77,52 @@ class OzbKontoController < ApplicationController
       @ozb_latest = OzbKonto.find(params[:ktoNr], "9999-12-31 23:59:59")
       @ozb_latest.GueltigBis = Time.now
       
-      # Bankverbindung (no valid time! -> just update)
-      bv = @ozb_latest.ee_konto.bankverbindung
-      bv.bankKtoNr = params[:ozb_konto][:ee_konto_attributes][:bankverbindung_attributes][:bankKtoNr]
-      bv.blz = params[:ozb_konto][:ee_konto_attributes][:bankverbindung_attributes][:blz]
-      bv.bic = params[:ozb_konto][:ee_konto_attributes][:bankverbindung_attributes][:bic]
-      bv.iban = params[:ozb_konto][:ee_konto_attributes][:bankverbindung_attributes][:iban]
-      bv.bankName = params[:ozb_konto][:ee_konto_attributes][:bankverbindung_attributes][:bankName]
-      
-      # EE-Konto (valid time! -> copy and update time stamps of old entry)
-      @ozb_latest.ee_konto.GueltigBis = Time.now
-      @ozb_latest.save
-      
-      ee_new = EeKonto.new
-      ee_new.ktoNr = params[:ozb_konto][:ktoNr]
-      ee_new.bankId = @ozb_latest.ee_konto.bankId 
-      ee_new.kreditlimit = params[:ozb_konto][:ee_konto_attributes][:kreditlimit]
-      ee_new.GueltigVon = Time.now
-      ee_new.GueltigBis = Time.zone.parse("9999-12-31 23:59:59")
-      ee_new.SachPNR = 2337 # please fix this for production! (I don't know where the current users ID is stored)
-      ee_new.save # copy! -> extra save
+      if params[:kontotyp] == "EE"
+        # Bankverbindung (no valid time! -> just update)
+        bv = @ozb_latest.ee_konto.bankverbindung
+        bv.bankKtoNr = params[:ozb_konto][:ee_konto_attributes][:bankverbindung_attributes][:bankKtoNr]
+        bv.blz = params[:ozb_konto][:ee_konto_attributes][:bankverbindung_attributes][:blz]
+        bv.bic = params[:ozb_konto][:ee_konto_attributes][:bankverbindung_attributes][:bic]
+        bv.iban = params[:ozb_konto][:ee_konto_attributes][:bankverbindung_attributes][:iban]
+        bv.bankName = params[:ozb_konto][:ee_konto_attributes][:bankverbindung_attributes][:bankName]
+        
+        # EE-Konto (valid time! -> copy and update time stamps of old entry)
+        @ozb_latest.ee_konto.GueltigBis = Time.now
+        @ozb_latest.save
+        
+        ee_new = EeKonto.new
+        ee_new.ktoNr = params[:ozb_konto][:ktoNr]
+        ee_new.bankId = @ozb_latest.ee_konto.bankId 
+        ee_new.kreditlimit = params[:ozb_konto][:ee_konto_attributes][:kreditlimit]
+        ee_new.GueltigVon = Time.now
+        ee_new.GueltigBis = Time.zone.parse("9999-12-31 23:59:59")
+        ee_new.SachPNR = 2337 # please fix this for production! (I don't know where the current users ID is stored)
+        ee_new.save # copy! -> extra save
+      else
+        # ZE-Konto (valid time! -> copy and update time stamps of old entry)
+        @ozb_latest.ze_konto.GueltigBis = Time.now
+        @ozb_latest.save
+        
+        ze_new = ZeKonto.new
+        ze_new.ktoNr = params[:ozb_konto][:ktoNr]
+        ze_new.eeKtoNr = params[:ozb_konto][:ze_konto_attributes][:eeKtoNr]
+        ze_new.pgNr = params[:ozb_konto][:ze_konto_attributes][:pgNr]
+        ze_new.zeNr = params[:ozb_konto][:ze_konto_attributes][:zeNr]
+        ze_new.zeAbDatum = params[:ozb_konto][:ze_konto_attributes][:zeAbDatum]
+        ze_new.zeEndDatum = params[:ozb_konto][:ze_konto_attributes][:zeEndDatum]
+        ze_new.zeBetrag = params[:ozb_konto][:ze_konto_attributes][:zeBetrag]
+        ze_new.laufzeit = params[:ozb_konto][:ze_konto_attributes][:laufzeit]
+        ze_new.zahlModus = params[:ozb_konto][:ze_konto_attributes][:zahlModus]
+        ze_new.tilgRate = params[:ozb_konto][:ze_konto_attributes][:tilgRate]
+        ze_new.ansparRate = params[:ozb_konto][:ze_konto_attributes][:ansparRate]
+        ze_new.kduRate = params[:ozb_konto][:ze_konto_attributes][:kduRate]
+        ze_new.rduRate = params[:ozb_konto][:ze_konto_attributes][:rduRate]
+        ze_new.zeStatus = params[:ozb_konto][:ze_konto_attributes][:zeStatus]
+        ze_new.GueltigVon = Time.now
+        ze_new.GueltigBis = Time.zone.parse("9999-12-31 23:59:59")
+        ze_new.SachPNR = 2337 # please fix this for production! (I don't know where the current users ID is stored)
+        ze_new.save # copy! -> extra save
+      end
       
       # KKL-Verlauf (valid time! -> copy)
       kkl = @ozb_latest.kkl_verlauf

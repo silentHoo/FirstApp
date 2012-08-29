@@ -90,6 +90,11 @@ class OzbKonto < ActiveRecord::Base
       o.delete
     end
     
+    ze_konten = ZeKonto.where("ktoNr = ? AND GueltigBis < ?", self.ktoNr, "9999-12-31 23:59:59")
+    ze_konten.each do |o|
+      o.delete
+    end
+    
     kkl_verlauf = KklVerlauf.where("ktoNr = ?", self.ktoNr)
     kkl_verlauf.each do |o|
       o.delete
@@ -157,7 +162,7 @@ class OzbKonto < ActiveRecord::Base
   # Static method
   # Returns all ZE-Konten for the specified person at ALL TIME
   def self.get_all_ze_for(mnr)
-    ozb_konto = self.where(:mnr => mnr)
+    ozb_konto = self.where(:mnr => mnr, :GueltigBis => "9999-12-31 23:59:59")
     @ze_konto = Array.new
     
     ozb_konto.each do |konto|
