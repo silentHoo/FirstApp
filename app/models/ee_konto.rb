@@ -4,7 +4,7 @@ class EeKonto < ActiveRecord::Base
   self.primary_keys = :ktoNr, :GueltigBis # two primary keys define an unique record
   
   # associations
-  belongs_to :ozb_konto, 
+  belongs_to :ozb_konto,
     :primary_key => :ktoNr, 
     :foreign_key => :ktoNr, 
     :conditions => "GueltigBis = \"9999-12-31 23:59:59\"" # condition -> for historic db

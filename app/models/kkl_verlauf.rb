@@ -1,12 +1,12 @@
 class KklVerlauf < ActiveRecord::Base
-  set_table_name "kklverlauf"
+  self.table_name = "kklverlauf"
   self.primary_key = :id
   
   # attributes
   attr_accessible :ktoNr, :kklAbDatum, :kkl
   
   # associations
-  belongs_to :ozb_konto, :foreign_key => :ktoNr
+  belongs_to :ozb_konto, :foreign_key => :ktoNr, :class_name => "OzbKonto"
   belongs_to :kontenklasse, :foreign_key => :kkl
   
   # validations

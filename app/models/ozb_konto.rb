@@ -10,7 +10,7 @@ class OzbKonto < ActiveRecord::Base
   # this differs from the db model -> there are in 'real' many ZeKonto for this record, but we have a historic database where at a point of time only one record is valid!
   has_one :kkl_verlauf, 
     :foreign_key => :ktoNr,
-    :primary_key => :ktoNr,
+    :primary_key => :ktoNr, # :id
     :dependent => :destroy, 
     :class_name => "KklVerlauf", 
     :order => "kklAbDatum DESC" # order is important to match the latest record!
@@ -80,7 +80,9 @@ class OzbKonto < ActiveRecord::Base
   
   # bound to callback
   def set_assoc_attributes
-    self.ee_konto.SachPNR = self.SachPNR
+    if (!self.ee_konto.nil?)
+      self.ee_konto.SachPNR = self.SachPNR
+    end
   end
   
   # bound to callback
@@ -93,6 +95,7 @@ class OzbKonto < ActiveRecord::Base
   
   # bound to callback
   def set_einr_datum
+    # check if the date is already set and set only iff it's not
     if (self.ktoEinrDatum.blank?)
       self.ktoEinrDatum = Time.now
     end
@@ -118,14 +121,14 @@ class OzbKonto < ActiveRecord::Base
   # Static method
   # Returns all EE-Konten for the specified person at ALL TIME
   def self.get_all_ee_for(mnr)
-    ozb_konto = self.where(:mnr => mnr)
+    ozb_konto = self.where(:mnr => mnr, :GueltigBis => "9999-12-31 23:59:59")
     @ee_konto = Array.new
     
     ozb_konto.each do |konto|
       #if konto.ee_konto.count > 0 then
       #  @ee_konto.push(konto.ee_konto.first)
       #end
-      if !konto.ee_konto.nil?
+      if !konto.ee_konto.nil? #&& konto.ee_konto.GueltigBis == "9999-12-31 23:59:59"
         @ee_konto.push(konto.ee_konto)
       end
     end
