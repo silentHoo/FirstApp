@@ -87,7 +87,7 @@ class BuergschaftController < ApplicationController
         @ze.push(o.ze_konto)
       end
       
-      if (@ze.size > 1)
+      if (@ze.size > 0)
         render :partial => "ajax_ktonr_collection"
       else
         render :text => "Keine ZE-Konten für diese Person vorhanden"
