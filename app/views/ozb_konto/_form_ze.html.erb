@@ -1,0 +1,110 @@
+﻿<%= form_for setup_ze_konto(@ozb_konto), :url => { :action => @action } do |o| %>
+  
+  <%= o.error_messages %>
+  
+  <br />
+  
+  <%= o.hidden_field :mnr, { :value => @ozb_person.mnr } %>
+  
+  <fieldset>
+  <legend>ZE-Konto</legend>
+  
+  <table class="record_form">
+    <tr>
+      <td><%= o.label :ktoNr %>:</td>
+      <td><%= o.text_field :ktoNr %></td>
+	  <td><%= o.label :waehrung %></td>
+	  <td><%= o.text_field :waehrung, :value => "EUR", :disabled => "disabled" %></td>
+    </tr>
+    <tr>
+      <td><%= o.label :wSaldo %>:</td>
+      <td><%= o.text_field :wSaldo %> &euro;</td>
+	  <td><%= o.label :pSaldo %>:</td>
+      <td><%= o.text_field :pSaldo %></td>
+    </tr>
+    <tr>
+      <td><%= o.label :saldoDatum %>:</td>
+      <td><%= o.text_field :saldoDatum, :id => "saldoDatum", :value => Time.now.to_date %></td>
+	  
+	  <%= o.fields_for :kkl_verlauf do |kkl| %>
+	  <td><%= kkl.label :kkl %>:</td>
+      <td><%= kkl.collection_select(:kkl, Kontenklasse.all, :kkl, :kkl_with_percent, :selected => o.object.kkl_verlauf.kkl) %></td>
+	  <% end %>
+    </tr>
+	
+	<%= o.fields_for :ze_konto do |ze| %>
+		<tr>
+		  <td><%= ze.label :eeKtoNr %>:</td>
+		  <td><%= ze.collection_select(:eeKtoNr, EeKonto.find(:all, :conditions => { :GueltigBis => "9999-12-31 23:59:59" }), :ktoNr, :ktonr_with_name, :selected => o.object.ze_konto.ktoNr) %></td>
+		  <td><%= ze.label :pgNr %></td>
+		  <td><%= ze.collection_select(:pgNr, Projektgruppe.all, :pgNr, :projGruppez, :selected => o.object.ze_konto.pgNr) %></td>
+		</tr>
+		<tr>
+			<td><%= ze.label :zeNr %></td>
+			<td><%= ze.text_field :zeNr %></td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td><%= ze.label :zeAbDatum %></td>
+			<td><%= ze.text_field :zeAbDatum %></td>
+			<td><%= ze.label :zeEndDatum %></td>
+			<td><%= ze.text_field :zeEndDatum %></td>
+		</tr>
+		<tr>
+			<td><%= ze.label :zeBetrag %></td>
+			<td><%= ze.text_field :zeBetrag %> &euro;</td>
+			<td><%= ze.label :laufzeit %></td>
+			<td><%= ze.text_field :laufzeit %> Monate</td>
+		</tr>
+		<tr>
+			<td><%= ze.label :zahlModus %></td>
+			<td><%= ze.text_field :zahlModus %></td>
+			<td><%= ze.label :tilgRate %></td>
+			<td><%= ze.text_field :tilgRate %></td>
+		</tr>
+		<tr>
+			<td><%= ze.label :ansparRate %></td>
+			<td><%= ze.text_field :ansparRate %> &euro;</td>
+			<td><%= ze.label :kduRate %></td>
+			<td><%= ze.text_field :kduRate %> &euro;</td>
+		</tr>
+		<tr>
+			<td><%= ze.label :rduRate %></td>
+			<td><%= ze.text_field :rduRate %> &euro;</td>
+			<td><%= ze.label :zeStatus %></td>
+			<td><%= ze.text_field :zeStatus %></td>
+		</tr>
+	<% end %>
+	</table>
+  </fieldset>
+
+  <br />
+  
+  Felder die mit einem * markiert sind müssen ausgefüllt werden.
+  
+  <br />
+  
+  <table class="actions">
+  	<tr>
+  	  <td><%= link_to("Abbrechen", { :controller => "ozb_konto", :action => "index" }, :class => "cancel_link") %></td>
+	  <td><%= o.submit(:value => "Speichern", :class => "submit_ok") %></td>
+	</tr>
+  </table>
+<% end %>
+
+<script>
+  $(function() {
+    $("#saldoDatum").datepicker({
+      dateFormat: 'yy-mm-dd'
+    });
+    
+    $("#ozb_konto_ze_konto_attributes_zeAbDatum").datepicker({
+      dateFormat: 'yy-mm-dd'
+    });
+    
+    $("#ozb_konto_ze_konto_attributes_zeEndDatum").datepicker({
+      dateFormat: 'yy-mm-dd'
+    });
+  });
+</script>

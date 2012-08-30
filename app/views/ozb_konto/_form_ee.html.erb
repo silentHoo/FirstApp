@@ -1,0 +1,97 @@
+﻿<%= form_for setup_ee_konto(@ozb_konto), :url => { :action => @action } do |o| %>
+  
+  <%= o.error_messages %>
+    
+  <br />
+  
+  <%= o.hidden_field :mnr, { :value => @ozb_person.mnr } %>
+  
+  <fieldset>
+  <legend>EE-Konto</legend>
+  
+  <table class="record_form">
+    <tr>
+      <td><%= o.label :ktoNr %>:</td>
+      <td><%= o.text_field :ktoNr %></td>
+	  <td><%= o.label :waehrung %></td>
+	  <td><%= o.text_field :waehrung, :value => "EUR", :disabled => "disabled" %></td>
+    </tr>
+    <tr>
+      <td><%= o.label :wSaldo %>:</td>
+      <td><%= o.text_field :wSaldo %>&euro;</td>
+	  <td><%= o.label :pSaldo %>:</td>
+      <td><%= o.text_field :pSaldo %></td>
+    </tr>
+    <tr>
+      <td><%= o.label :saldoDatum %>:</td>
+      <td><%= o.text_field :saldoDatum, :id => "saldoDatum", :value => Time.now.to_date %></td>
+	  
+	  <%= o.fields_for :kkl_verlauf do |kkl| %>
+	  <td><%= kkl.label :kkl %>:</td>
+      <td><%= kkl.collection_select(:kkl, Kontenklasse.all, :kkl, :kkl_with_percent, :selected => o.object.kkl_verlauf.kkl) %></td>
+	  <% end %>
+    </tr>
+	
+	<%= o.fields_for :ee_konto do |ee| %>
+		<tr>
+		  <td><%= ee.label :kreditlimit %>:</td>
+		  <td><%= ee.text_field :kreditlimit %> &euro;</td>
+		  <td>&nbsp;</td>
+		  <td>&nbsp;</td>
+		</tr>
+	</table>
+  </fieldset>
+
+  <br />
+
+  <!-- Bankverbindung: :id, :bankKtoNr, :blz, :bic, :iban, :bankName -->
+  <fieldset>
+  <legend>Bankverbindung</legend>
+		<%= ee.fields_for :bankverbindung do |bv| %>
+		  <%= bv.hidden_field :pnr, :value => @person.pnr %>
+		
+		  <table class="record_form">
+			<tr>
+			  <td><%= bv.label :bankKtoNr %>:</td>
+			  <td><%= bv.text_field :bankKtoNr %></td>
+			  <td>&nbsp;</td>
+			  <td>&nbsp;</td>
+			</tr>
+			<tr>
+			  <td><%= bv.label :blz %>:</td>
+			  <td><%= bv.text_field :blz %></td>
+			  <td><%= bv.label :bankName %>:</td>
+			  <td><%= bv.text_field :bankName %></td>
+			</tr>
+			<tr>
+			  <td><%= bv.label :bic %>:</td>
+			  <td><%= bv.text_field :bic %></td>
+			  <td><%= bv.label :iban %>:</td>
+			  <td><%= bv.text_field :iban %></td>
+			</tr>
+		  </table>
+		<% end %>
+	<% end %>
+  </fieldset>
+  
+  <br />
+  
+  Felder die mit einem * markiert sind müssen ausgefüllt werden.
+  
+  <br />
+  
+  <table class="actions">
+  	<tr>
+  	  <td><%= link_to("Abbrechen", { :controller => "ozb_konto", :action => "index" }, :class => "cancel_link") %></td>
+	  <td><%= o.submit(:value => "Speichern", :class => "submit_ok") %></td>
+	</tr>
+  </table>
+<% end %>
+
+<script>
+  $(function() {
+    $( "#saldoDatum" ).datepicker({
+      dateFormat: 'yy-mm-dd'
+    });
+  });
+</script>
