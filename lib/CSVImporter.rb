@@ -87,7 +87,7 @@ class CSVImporter
         # done -> wenn alle Zeilen abgelaufen wurden
         @processed = true
         @number_records = n
-        @notice = "Folgende Spalten wurden importiert: " + def_cols.join(", ")
+        @notice = "Folgende Spalten wurden aus der Datei verwendet: " + def_cols.join(", ")
       end
     end
   end

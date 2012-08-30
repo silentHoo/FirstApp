@@ -27,19 +27,20 @@ class WebimportController < ApplicationController
       FileUtils.rm(uploaded_disk)
       
       # sort rows by ...
-      #rows = csv.rows.sort_by { |r| r[0] }
+      # rows = csv.rows.sort_by { |r| r[0] }
+      rows = csv.rows
       
       @error = csv.error
       @notice = csv.notice
       
       imported_records = 0
       row_counter = 0
+      
+      collect_konten = Array.new
       rows.each do |r|
         begin
           ActiveRecord::Base.transaction do
             row_counter += 1
-            
-            collect_konten = Array.new
             
             habenbetrag = 0.0
             sollbetrag = 0.0
@@ -327,61 +328,65 @@ class WebimportController < ApplicationController
       end
       
       # berechnen der Saldo und Punktesaldo für Konten
-      collect_konten.uniq!.each do |ktoNr|
-        b = Buchung.find(:all, :conditions => { :ktoNr => ktoNr }, :order => "belegDatum ASC, typ DESC, habenBetrag DESC, sollBetrag DESC, pSaldoAcc DESC")
-        
-        saldo_acc = 0.0 # wSaldoAcc
-        pkte_acc = 0 # pSaldoAcc
-        first_time = b.belegDatum
-        last_saldo_acc = 0.0
-        end_pkte_acc = 0
-        
-        # Berechne Daten für die nächste Buchung
-        b.each do |buchung|
-          if (buchung.typ == "w")
-            second_time = buchung.belegDatum
-            saldo_acc = saldo_acc + buchung.habenBetrag - buchung.sollBetrag
-            
-            if (second_time != first_time)
-              pkte_acc = calc_score(first_time, second_time, last_saldo_acc, ktoNr).to_i
-              end_pkte_acc = end_pkte_acc + pkte_acc
+      if (collect_konten.size == 0)
+        @error = "Keine der zu importierenden Konten in der Datenbank eingetragen"
+      else
+        collect_konten.uniq!.each do |ktoNr|
+          b = Buchung.find(:all, :conditions => { :ktoNr => ktoNr }, :order => "belegDatum ASC, typ DESC, habenBetrag DESC, sollBetrag DESC, pSaldoAcc DESC")
+          
+          saldo_acc = 0.0 # wSaldoAcc
+          pkte_acc = 0 # pSaldoAcc
+          first_time = b.belegDatum
+          last_saldo_acc = 0.0
+          end_pkte_acc = 0
+          
+          # Berechne Daten für die nächste Buchung
+          b.each do |buchung|
+            if (buchung.typ == "w")
+              second_time = buchung.belegDatum
+              saldo_acc = saldo_acc + buchung.habenBetrag - buchung.sollBetrag
+              
+              if (second_time != first_time)
+                pkte_acc = calc_score(first_time, second_time, last_saldo_acc, ktoNr).to_i
+                end_pkte_acc = end_pkte_acc + pkte_acc
+              end
+              
+              b = Buchung.find(:all, :conditions => ["ktoNr = ? AND belegNr = ? AND belegDatum = ?", buchung.ktoNr, buchung.belegNr, buchung.belegDatum])
+              b.update_attributes(
+                :wSaldoAcc => saldo_acc,
+                :pSaldoAcc => pkte_acc,
+                :punkte => end_pkte_acc
+              )
+              b.save
+              
+              first_time = second_time
+              last_saldo_acc = saldo_acc
+              pkte_acc = 0
+              last_saldo_data = buchung.belegDatum
             end
             
-            b = Buchung.find(:all, :conditions => ["ktoNr = ? AND belegNr = ? AND belegDatum = ?", buchung.ktoNr, buchung.belegNr, buchung.belegDatum])
-            b.update_attributes(
-              :wSaldoAcc => saldo_acc,
-              :pSaldoAcc => pkte_acc,
-              :punkte => end_pkte_acc
-            )
-            b.save
-            
-            first_time = second_time
-            last_saldo_acc = saldo_acc
-            pkte_acc = 0
-            last_saldo_data = buchung.belegDatum
+            if (buchung.typ == "p")
+              end_pkte_acc = end_pkte_acc + buchung.sollbetrag + buchung.habenbetrag
+              
+              b = Buchung.find(:all, :conditions => ["ktoNr = ? AND belegNr = ? AND belegDatum = ?", buchung.ktoNr, buchung.belegNr, buchung.belegDatum])
+              b.update_attributes(
+                :wSaldoAcc => saldo_acc,
+                :pSaldoAcc => 0.00,
+                :punkte => end_pkte_acc
+              )
+              b.save
+            end
           end
           
-          if (buchung.typ == "p")
-            end_pkte_acc = end_pkte_acc + buchung.sollbetrag + buchung.habenbetrag
-            
-            b = Buchung.find(:all, :conditions => ["ktoNr = ? AND belegNr = ? AND belegDatum = ?", buchung.ktoNr, buchung.belegNr, buchung.belegDatum])
-            b.update_attributes(
-              :wSaldoAcc => saldo_acc,
-              :pSaldoAcc => 0.00,
-              :punkte => end_pkte_acc
-            )
-            b.save
-          end
+          # das End-Saldo ins Konto eintragen
+          konto = OzbKonto.find(:all, :conditions => { :ktoNr => ktoNr }).first
+          konto.update_attributes(
+            :wSaldo => saldo_acc,
+            :pSaldo => end_pkte_acc,
+            :saldoDatum => last_saldo_data
+          )
+          konto.save
         end
-        
-        # das End-Saldo ins Konto eintragen
-        konto = OzbKonto.find(:all, :conditions => { :ktoNr => ktoNr }).first
-        konto.update_attributes(
-          :wSaldo => saldo_acc,
-          :pSaldo => end_pkte_acc,
-          :saldoDatum => last_saldo_data
-        )
-        konto.save
       end
       
       @notice += "<br /><br />" + csv.number_records.to_s + " von " + csv.rows.size.to_s + " Datensätzen eingelesen."
