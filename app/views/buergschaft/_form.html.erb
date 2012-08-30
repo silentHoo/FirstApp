@@ -1,0 +1,65 @@
+<%= form_for @buergschaft, :url => { :action => @action } do |f| %>
+
+  <%= f.error_messages %>
+
+  <table>
+    <tr>
+      <td><%= f.label :mnrG %></td>
+      <td><%= f.collection_select(:mnrG, Gesellschafter.latest_all, :mnr, :fullname, :selected => f.object.mnrG) %></td>
+      <td><%= f.label :pnrB %></td>
+      <td><%= f.collection_select(:pnrB, Person.latest_all, :pnr, :fullname, :selected => f.object.pnrB) %></td>
+    </tr>
+    
+    <tr>
+        <td><%= f.label :ktoNr %></td>
+        <td id="buergschaft_ktonr_placeholder"><i>- Bitte wählen Sie einen Gläubiger aus -</i></td>
+        <td><%= f.label :sichAbDatum %></td>
+        <td><%= f.text_field :sichAbDatum %></td>
+    </tr>  
+    
+    <tr>
+        <td><%= f.label :sichEndDatum %></td>
+        <td><%= f.text_field :sichEndDatum %></td>
+        <td><%= f.label :sichBetrag %></td>
+        <td><%= f.text_field :sichBetrag %></td>
+    </tr>
+    
+    <tr>
+        <td><%= f.label :sichKurzBez %></td>
+        <td><%= f.text_field :sichKurzBez %></td>
+    </tr>
+  
+  </table>
+
+<table class="actions">
+  <tr>
+    <td><%= link_to "Abbrechen", "/buergschaften", :class => "cancel_link" %></td>
+    <td><%= f.submit(:value => "Speichern", :class => "submit_ok") %></td>
+  </tr>
+</table>
+
+<% end %>
+
+<script>
+$(function() {
+    $("#buergschaft_sichEndDatum").datepicker({
+      dateFormat: 'yy-mm-dd'
+    });
+    
+    $("#buergschaft_sichAbDatum").datepicker({
+      dateFormat: 'yy-mm-dd'
+    });
+    
+    $("#buergschaft_mnrG").click(function(e) {
+      $.post("/buergschaften/ajax_ktonr_collection", {
+        mnrG: $(this).val()
+      }, function(collection_select) {
+        $("#buergschaft_ktonr_placeholder").html(collection_select);
+      });
+    });
+    
+    <% if (@action == "edit") %>
+      $("#buergschaft_mnrG").click();
+    <% end %>
+});
+</script>
