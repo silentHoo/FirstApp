@@ -1,6 +1,6 @@
 class Buchung < ActiveRecord::Base
-  set_table_name "Buchung"
-  set_primary_keys :buchJahr, :ktoNr, :bnKreis, :belegNr, :typ
+  self.table_name = "Buchung"
+  self.primary_keys = :buchJahr, :ktoNr, :bnKreis, :belegNr, :typ
   
   # attributes
   attr_accessible   :buchJahr, :ktoNr, :bnKreis, :belegNr, :typ, :belegDatum, :buchDatum, 
@@ -15,20 +15,20 @@ class Buchung < ActiveRecord::Base
   
   # column names
   HUMANIZED_ATTRIBUTES = {
-    :buchJahr => 'Jahr',
-    :ktoNr => 'Konto-Nr.',
-    :bnKreis => 'Buchungskreis',
-    :typ => 'Typ',
-	:belegDatum => 'Belegdatum',
-	:buchDatum => 'Buchungsdatum',
-	:buchungsText => 'Verwendungszweck',
-	:sollBetrag => 'Betrag (Soll)',
-	:habenBetrag => 'Betrag (Haben)',
-	:sollKtoNr => 'sollKtoNr',
-	:habenKtoNr => 'habenKtoNr',
-	:wSaldoAcc => 'wSaldoAcc',
-	:punkte => 'Punkte',
-	:pSaldoAcc => 'pSaldoAcc'
+    :buchJahr       => 'Jahr',
+    :ktoNr          => 'Konto-Nr.',
+    :bnKreis        => 'Buchungskreis',
+    :typ            => 'Typ',
+    :belegDatum     => 'Belegdatum',
+    :buchDatum      => 'Buchungsdatum',
+    :buchungsText   => 'Verwendungszweck',
+    :sollBetrag     => 'Betrag (Soll)',
+    :habenBetrag    => 'Betrag (Haben)',
+    :sollKtoNr      => 'sollKtoNr',
+    :habenKtoNr     => 'habenKtoNr',
+    :wSaldoAcc      => 'wSaldoAcc',
+    :punkte         => 'Punkte',
+    :pSaldoAcc      => 'pSaldoAcc'
   }
 
   def self.human_attribute_name(attr, options={})

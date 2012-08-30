@@ -62,6 +62,10 @@ OZB::Application.routes.draw do
   match '/buergschaften/:pnrB/:mnrG' => 'buergschaft#update', :via => :PUT
   match '/buergschaften/:pnrB/:mnrG/delete' => 'buergschaft#delete'
   
+  # Web-Import
+  match '/webimport' => 'webimport#index'
+  match '/webimport/csvimport_buchungen' => 'webimport#csvimport_buchungen'
+  
   # Adressen
   match '/adressen' => 'reports#adressen'
   
