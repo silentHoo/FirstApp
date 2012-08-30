@@ -1,0 +1,25 @@
+<h1>.:: Web-Import</h1>
+
+<br />
+
+<% if !@error.blank? %>
+	<div class="error">
+		<%= @error.html_safe %>
+	</div>
+<% end %>
+
+<% if !@notice.blank? %>
+	<div class="notice">
+		<%= @notice.html_safe %>
+	</div>
+<% end %>
+
+<fieldset>
+	<legend>CSV-Import</legend>
+	
+	<%= form_for :webimport, :url => { :controller => "webimport", :action => "csvimport_buchungen" }, :html => { :multipart => true } do |form| %>
+		Zu importierende Datei: <%= form.file_field :file %>
+		
+		<%= form.submit :value => "importieren" %>
+	<% end %>
+</fieldset> 
